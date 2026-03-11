@@ -1,0 +1,14 @@
+[
+    {
+        "paperId": "5b6ec746d309b165f9f9def873a2375b6fb40f3d",
+        "title": "Xception: Deep Learning with Depthwise Separable Convolutions",
+        "year": 2016,
+        "localPdfPath": "data\\raw_pdfs\\5b6ec746d309b165f9f9def873a2375b6fb40f3d.pdf"
+    },
+    {
+        "paperId": "d997beefc0922d97202789d2ac307c55c2c52fba",
+        "title": "PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation",
+        "year": 2016,
+        "localPdfPath": "data\\raw_pdfs\\d997beefc0922d97202789d2ac307c55c2c52fba.pdf"
+    }
+]
