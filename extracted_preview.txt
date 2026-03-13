@@ -1,0 +1,502 @@
+**==> picture [92 x 23] intentionally omitted <==**
+
+Received 18 July 2025, accepted 25 August 2025, date of publication 27 August 2025, date of current version 4 September 2025. _Digital Object Identifier 10.1109/ACCESS.2025.3603429_ 
+
+Robust Representation Learning for Privacy-Preserving Machine Learning: A Multi-Objective Autoencoder Approach 
+
+## SOFIANE OUAARI 1,2, ALI BURAK ÜNAL 1,2,3, METE AKGÜN 1,2,3, AND NICO PFEIFER 1,2 
+
+1Methods in Medical Informatics, Department of Computer Science, University of Tübingen, 72074 Tübingen, Germany 
+
+2Institute for Bioinformatics and Medical Informatics (IBMI), University of Tübingen, 72074 Tübingen, Germany 
+
+3Department of Medical Data Privacy and Privacy Preserving Machine Learning, University of Tübingen, 72074 Tübingen, Germany 
+
+Corresponding author: Sofiane Ouaari (sofiane.ouaari@uni-tuebingen.de) 
+
+This work was supported by the Carl Zeiss Stiftung Research Project ‘‘Certification and Foundations of SafeMachine Learning Systems in Healthcare.’’ 
+
+- **ABSTRACT** Several domains increasingly rely on machine learning in their applications. The resulting heavy dependence on data has led to the emergence of various laws and regulations around data ethics and privacy and growing awareness of the need for privacy-preserving machine learning (ppML). Current ppML techniques utilize methods that are either purely based on cryptography, such as homomorphic encryption, or that introduce noise into the input, such as differential privacy. The main criticism given to those techniques is the fact that they either are too slow or they trade off a model’s performance for improved confidentiality. To address this performance reduction, we aim to leverage robust representation learning as a way of encoding our data while optimising the privacy-utility trade-off. Our method centers on training autoencoders in a multi-objective manner and then concatenating the latent and learned features from the encoding part as the encoded form of our data. Such a deep learning-powered encoding can then safely be sent to a third party for intensive training and hyperparameter tuning. With our proposed framework, we can share our data and use third party tools without being under the threat of revealing its original form. We empirically validate our results on unimodal and multimodal settings, the latter following a vertical splitting system and show improved performance over state-of-the-art. 
+
+- **INDEX TERMS** Deep learning, privacy-preserving machine learning, representation learning, safe machine learning systems. 
+
+## **I. INTRODUCTION** 
+
+A wide range of application sectors is drastically integrating machine learning (ML) in diverse products. A successful ML model often requires a huge amount of training data and powerful computational resources. However, the need for such enormous volumes of data to develop performing models raises serious privacy concerns. Such ML models might face multiple types of adversarial attacks depending on the type of 
+
+The associate editor coordinating the review of this manuscript and approving it for publication was Ayman El-Baz . 
+
+access an adversary might have to the model (white or blackbox). A membership inference attack [1] allows an attacker to query a trained machine learning model to predict whether a given example is in the model’s training data set. On the other hand, an inversion attack [2], [3], [4] aims to recreate an input data point given a confidence score obtained from a black-box inference of the model. In order to make researchers and engineers take such privacy threats into consideration, many regulations and ethical data policies, such as GDPR, CCPA, and CPRA [5], [6] were set to raise awareness around this topic and restrict any data violations that might occur 
+
+2025 The Authors. This work is licensed under a Creative Commons Attribution 4.0 License. For more information, see https://creativecommons.org/licenses/by/4.0/ 
+
+151527 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+in a given ML pipeline. Many previous works have used privacy-enhancing technologies to reduce the effectiveness of privacy attacks or to prevent them. In those studies, differential privacy (DP) is the most commonly used approach which operates by incorporating predetermined randomization into a machine learning algorithm’s computation. The perturbation introduced by DP might be applied on the users’s input, parameters, prediction output and even on loss functions [7], [8]. However, many studies have shown that such noise reduces the performance of the model for the sake of privacy [9]. Furthermore, setting up a correct value for _ϵ_ is complex by nature and requires some trial and error process. 
+
+Homomorphic encryption (HE) is a cryptographic method applied in the domain of ppML. It is defined as a type of encryption method that allows computations to be performed on encrypted data without first decrypting it with a secret key. Yet HE has some limitations. It was originally designed to allow only algebraic operations such as addition and multiplication which excludes the various non-linear activation functions leveraged in neural networks. Numerous studies have been conducted to approximate such functions using polynomials [10], [11], [12], however such approximations result in high computational burden and reduce the ability to apply various methods by extending the depth of deep learning models, since performing all that in an HE manner significantly increases computation time. 
+
+Using representation learning as a way of encoding the data by sharing only the latent space of an autoencoder, in the context of ppML, was presented by [13]. The idea was to train a supervised autoencoder where a classifier is linked to the latent space and then share the latter as an encoded version of the data. However, such a framework still results in a loss of performance. Furthermore, the authors did not specify any clear threat analysis to their encoding strategy. 
+
+The aim behind our paper is to improve such a framework by training a supervised residual autoencoder in a multi-objective fashion by simultaneously considering the data reconstruction and the supervised learning problem, ensuring an informative and discriminative representation. After training it we concatenate the features learned from the encoder as the representation to be shared with third parties for further training and an extensive hyperparameter search. We empirically demonstrate (see subsection V-B) that our suggested architecture considerably improves on the performance of the architecture presented by [13]. The approach of our method is empirically validated on different datasets rather than theoretically derived. 
+
+In addition, we also provide a threat analysis to discuss how secure our framework is and the different types of access that an adversary might have, considering different actors directly involved and interacting with our framework. Our ppML encoding is applied on the data part and we empirically demonstrate the effectiveness of this method by first experimenting on unimodal settings using MNIST, FashionMNIST, Leukemia, and Retinal OCT datasets. In addition, we further explore the capabilities offered by our ppML framework on 
+
+multimodal data distributed in a vertical setting, where each modality is provided by a given data party. For this purpose, a TCGA multi-omics breast cancer dataset was leveraged. We summarize our main contributions as follows: 
+
+- We developed a considerably improved version of the data sharing strategy through latent space embedding proposed by [13], increasing the performance on different prediction tasks and providing a detailed threat analysis. 
+
+- We demonstrated the application flow of our proposed encoding framework for both unimodal and multimodal (vertically distributed) settings. 
+
+- We empirically validated our approach to be utilityprivacy efficient by comparing models trained on the original data against models trained on the generated encoded data and show that both perform equally. 
+
+- We provided a clear security and threat analysis of our framework given the participation of four actors namely: the data owner, the cloud, a user and a partner institution. 
+
+## **II. BACKGROUND AND RELATED WORK** 
+
+In this section, we present previous work that has been performed in the sphere of autoencoders, representation learning and ppML methods enhanced with deep learning. 
+
+## _A. AUTOENCODERS_ 
+
+Autoencoders are a type of neural network originally implemented to solve the unsupervised task of data reconstruction. Formally, an autoencoder is defined with three main parts, which are an encoder _E(.)_ , a latent space representation _s_ and a decoder _D(.)_ . Given _x,_ ˆ _x_ ∈ R _[d]_ and _s_ ∈ R _[m]_ we ˆ ˆ have _s_ = _E_ ( _x_ ) and _x_ = _D_ ( _s_ ) with _m_ ≪ _d_ and _x_ defined as the reconstructed output of the original input _x_ . Beyond its original purpose, the use of autoencoders were extended to other applications such as data generation with variational autoencoders [14], anomaly detection [15] and recommendation systems [16], [17]. They were also leveraged for supervised learning purposes. A supervised autoencoder (SAE) was implemented by [18] where the latent space _s_ is linked to a classifier _fc_ trained in parallel with the original data reconstruction problem and the overall loss function defined as follows: 
+
+**==> picture [218 x 44] intentionally omitted <==**
+
+With _θe_ , _θd_ and _θc_ being the parameters of the encoder, decoder and classifier respectively and _Lr_ ( _., ._ ), _Lc_ ( _., ._ ) defined as reconstruction and categorical cross entropy losses. 
+
+## _B. REPRESENTATION LEARNING_ 
+
+A good encoding demands an informative representation of the original data by reducing the dimension of the input without lowering the inter-dependencies and the important relations needed for a given ML model to perform efficiently in a given task. A reasonable-sized learnt representation might 
+
+151528 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+encompass enough information about the input, because good representations are expressive. What makes the essence of a good representation was surveyed by [19], which we took into consideration while developing our framework. 
+
+- _Smoothness_ : Given _x, y_ ∈ R _[d]_ and a representation function _f_ ( _._ ) defined as: _f_ : R _[d]_ → R _[m]_ , where _m < d_ , a smooth representation implies that if _x_ ≈ _y_ then _f_ ( _x_ ) ≈ _f_ ( _y_ ). In a geometric point of view using distances this translates to: if _dist_ ( _x_ 1 _, x_ 2) _< dist_ ( _x_ 1 _, x_ 3) then _dist_ ( _f_ ( _x_ 1) _, f_ ( _x_ 2)) _< dist_ ( _f_ ( _x_ 1) _, f_ ( _x_ 3)). 
+
+- _Sparsity_ & _Invariance_ : for any given observation in _x_ , only a small fraction of the possible factors are relevant. In terms of representation, this could be represented by features that are often zero or by the fact that most of the extracted features are insensitive to small variations of _x_ . For our case, this can be achieved through sparse autoencoders [20] which is a sort of autoencoder that uses sparsity to create a bottleneck in the flow of information. In particular, the loss function is designed to penalize the activation generated by the layer. _L_ 1 regularization is usually used to apply the sparsity constraint. 
+
+## _C. PRIVACY ENHANCEMENT WITH DEEP LEARNING_ 
+
+Linking deep learning training concepts for the purpose of ppML has been addressed before. Adversarial learning is the most frequent way to handle privacy-utility trade-off where the privacy variable is explicitly introduced in the adversarial objective. UAE-PUPET was presented by [21] where an autoencoder takes an input _x_ and generates _x_ ˆ being a distorted version of _x_ that contains minimum information of a given private attribute _xp_ while always keeping the most important information of the targeted utility variable _xu_ . UAEPUPET works by linking 2 classifiers to the autoencoder _γu_ , _γp_ responsible for predicting the utility and private attributes, respectively, then adversarialy minimizing _Lu_ and maximizing _Lp_ , while added to the original reconstruction loss. However, such methods based on adversarial learning [21], [22] require to choose only one privacy variable at a time which is not always possible, in addition the authors did not run a clear threat analysis through analyzing how a harmful attack such as model inversion might be applied against the generated _x_ ˆ. Reference [23] proposed an adversarial reconstruction learning framework that prevents the latent representations to decode into the original input data. In other words, this time the reconstruction loss is directly maximized while minimizing the utility prediction error. Even though such a method allowed to empirically reduce the effectiveness of a model inversion attack, it is theoretically still possible and not inevitable. In addition the authors also noted that adversaries may still be able to exploit private meta information, such as determining the ethnicity of an individual based on skin color presented in reconstructed images, despite the fact that the images are not identical to the input. 
+
+Training a model _M_ with generated synthetic data is another ppML with deep learning approach. Previous works were performed to train Generative Adversarial Neural 
+
+networks (GANs) using differential privacy DP-GAN [24], [25], [26] or differential private diffusion models [27], [28], [29]. Yet, DP leads to the injection of noise in the generated data, which might reduce the model’s performance especially for complex data like in genomics, where the data suffers from the curse of dimensionality, and where one single gene can decide the main task’s outcome, DP might result in a further performance loss [30], [31], [32]. 
+
+The use of dataset condensation into the domain of ppML was first introduced by [33]. Data condensation [34] works by generating synthetic data through condensing the larger original data points into a smaller subset. It allows a data-efficient learning since the synthetic data are created by first randomly initializing them, afterwards two neural networks are trained where one is linked to the original data _T_ and the other to the synthetic data _S_ and then the latter is updated iteratively by back-propagating the loss in a way that both networks share the same weights. It was theoretically proven by [33] that dataset condensation is similar to differential privacy from the perspective that one sample has limited effect over the parameter distribution of a network. Then, they empirically showed that in addition to keeping good performance, a model trained with the synthetic data was also more robust towards membership inference attacks. However, such a method does present some limitations. First, the membership inference risk was still present even though it was decreased. In fact, the authors even found out that in the case of FashionMNIST the membership attack was more effective on the model trained with synthetic data _S_ than on its original counterpart due to the greyscale nature of the image, assuming that the synthetic data might contain more features prone to be memorized. Furthermore, dataset condensation initially requires a large amount of data, which excludes databases with few samples. 
+
+## **III. FRAMEWORK ARCHITECTURE AND METHODOLOGY** 
+
+We summarize the main components taking part in our encoding framework in Figure 1 while comparing it to the baseline presented by [13]. In this section of the paper, we will explain step by step each building block of our encoding framework. 
+
+## _A. SUPERVISED RESIDUAL AUTOENCODER_ 
+
+Ensuring the stability of the training in a neural network raises several questions, especially on how to correctly set the number of hidden layers to be used. It was shown by [35] that residual autoencoders (RAE) performed well and in a stable manner while ranging the number of repeated layers from 2 to 90 on MNIST, FashionMNIST and CIFAR. For this stability purpose, we decided to use the residual autoencoder as the main backbone of our encoding framework. By extension, we used a Convolution-RAE (C-RAE) when encoding images (Figure 2). Then every layer in the encoder including the latent space is forwarded in parallel to a classifier. Formally, given a sample ( _xi, yi_ ), each representation _ψi_[(] _[j]_[)] ∈ R _[e][j]_ of the 
+
+151529 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**==> picture [235 x 274] intentionally omitted <==**
+
+**FIGURE 1.** Suggested framework vs baseline. 
+
+**==> picture [171 x 199] intentionally omitted <==**
+
+**FIGURE 2.** Building block of the Convolution Residual Autoencoder (C-RAE) in the encoder part _E_ ( _**.**_ ). 
+
+_j_ -th layer in the encoder, with _el < ej_ +1 _< ej < d_ and _d, el_ being the respective dimensions of the input data and the latent space ( _el < d_ ), is separately fed into a feed-forward · network classifier _fj_ ( ) to perform the original classification ˆ task assigned to it _yi,j_ = _fi,j_ ( _ψi_[(] _[j]_[)] _[, θ][j]_[),] _[y]_[ˆ] _[i][,][j]_[∈] _[C]_[.] 
+
+## _B. APPLICATION FLOW_ 
+
+In this section, we explain the application pipeline of our encoding framework in both unimodal and multimodal schemes. 
+
+## 1) UNIMODAL SETTING 
+
+After training the supervised residual autoencoder (SRAE) of our framework on a dataset { _xi, yi_ }, we use the encoder part of it to compute different representations of a given sample _xi_ until the layer producing the latent space as defined in the previous section. The final encoding _ψi_ for a given sample _xi_ that will be shared is defined as the concatenation of those representations (Equation 2). 
+
+**==> picture [186 x 14] intentionally omitted <==**
+
+_l_ with _ψi_[(] _[j]_[)] ∈ R _[e][j]_ and _ψi_ ∈ R� _j_ =1 _[e][j]_ . The encoding of the whole dataset _�_ is defined as _�_ = { _ψi_ }. In Figure 3, we illustrate how the encoding pipeline is generated by our proposed framework for a unimodal scenario. 
+
+**==> picture [237 x 73] intentionally omitted <==**
+
+**FIGURE 3.** Execution flow of our ppML encoding framework on unimodal data, in ⃝ **1** our supervised residual autoencoder is trained in-house on the original data, then in ⃝ **2** the generated concatenated encoding _**�**_ will be sent and shared with another party (for example: cloud) for the purpose of performing a heavy hyper-parameters tuning and further computationally expensive experiments. 
+
+We would like to highlight and point out that in the unimodal setting our encoding framework is helpful, when further computational power from external resources is required, for instance to evaluate different hyperparameter settings and combinations and/or the use of complex ensemble and mixture of experts models. In other words, the trained residual autoencoder is kept in-house and only the encoded data is shared with the server providing the compute resources allowing us to benefit from cloud services without being under the threat of revealing our original data _x_ . Our framework can also be leveraged to permit other institutions, when requested, to benefit from the inference of our model by sharing with them both the encoder _E_ ( _._ ) and the final model trained on the cloud _M�_ . 
+
+## 2) MULTIMODAL SETTING 
+
+In this section of the paper we explain how to extend the utility of our framework in a multimodal use case. Let us consider a multimodal dataset consisting of _m_ modalities { _xi_[(] _[m]_[)] _, yi_ } and distributed in a vertical setting over _m_ data providers where basically each modality is stored in a data supplier. For this specific scenario, the adopted strategy works by training a supervised residual autoencoder on every modality separately at the data provider. Each one then sends in parallel its final encoding _�_[(] _[m]_[)] to a third party system to perform a cooperative training (Figure 4). Such a workflow permits mutual work between various providers by sending good representations of the input thus not hurting the performance and in the 
+
+151530 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**==> picture [215 x 136] intentionally omitted <==**
+
+**FIGURE 4.** Execution flow when applying our ppML encoding framework on a multimodal use case with vertically distributed data. 
+
+same time guaranteeing total privacy of the data since no information about the original data format or properties are revealed including the original shape, the distribution, the type of modality (image, sound, tabular...) and if the data-type is homogeneous (only numerical, only categorical) or heterogeneous. For the sake of a better understanding of how the proposed encoding framework can be applied in a multimodal scenario, we consider the following illustrative example. In the healthcare domain, 3 clinics are collaboratively working together to diagnose a given patient _Pj_ with a certain pathology _Hk_ . Each clinic is responsible for delivering specific information about the patient _Pj_ . For instance one presents the X-ray image, the second delivers the IRM image and the last one shares the electronic health record (EHR). Our framework allows the 3 institutions to collectively train a model responsible for detecting a pathology _Hk_ and to infer if patient _Pj_ suffers from it, all that without revealing the true format of the data to other parties in a way that clinic 2 and 3 are not able to know the original content of the X-ray image stored in clinic 1. 
+
+## _C. MULTI-OBJECTIVE PARADIGM_ 
+
+Our model, as previously mentioned, is trained to solve multiple tasks simultaneously. In addition to considering both the data reconstruction and classification problems in parallel, two other tasks within the sphere of representation learning are taken into account by the model. 
+
+## 1) CENTER LOSS 
+
+In order to ensure that the layers’ concatenation which will be shared by our framework has a widely class-separated structure to maximize the distance from decision boundaries we introduced a center loss on the concatenation layer. Center loss was presented by [36] and defined in Equation 3, where _cyi_ ∈ R _[d]_ denotes the _yi_ -th class center. It aims to minimize the intra-class distance. 
+
+**==> picture [165 x 29] intentionally omitted <==**
+
+## 2) COSINE SIMILARITY WITH PCA 
+
+Explicitly introducing an alignment mechanism in our representation is of crucial importance. For this purpose, we decided to use a cosine similarity loss function to explicitly make the learning of the representation aligned with the PCA of the original data, as PCA is a well accepted technique for dimensionality reduction. 
+
+In the same network, we connect the concatenation layer, where the center loss is already applied ( subsubsection III-C1), to a dense layer of 2 units and minimize the following function: 
+
+**==> picture [184 x 30] intentionally omitted <==**
+
+_l_ and _f_ 2( _._ ) defined as _f_ 2 : R� _j_ =1 _[e][j]_ → R[2] and _xi[pca]_ being the 2-d PCA of the sample _xi_ . 
+
+## **IV. DATASETS** 
+
+We will now list the set of datasets we experimented on to evaluate the efficiency of our encoding framework in terms of optimizing the performance-privacy trade-off. We went beyond using only standard benchmark datasets by also including data characterized with real life constraints as data imbalance and limited number of data points with number of features exceeding the number of samples. 
+
+## _A. UNIMODAL DATASET_ 
+
+## 1) IMAGE DATA 
+
+- **MNIST** [37] is considered a benchmark for image classification and includes grey scale images of digits. 
+
+- **Fashion MNIST** [38] is a benchmark dataset for machine learning similar to MNIST, but is by nature more complex since the task is to identify 10 types of fashion articles including shoes, shirts and bags. 
+
+- **Retinal Optical Coherence Tomography** (OCT) is an imaging technique used to capture high-resolution cross sections of the retinas. The dataset presented by [39] is comprised of 84 495 retina images with 4 classes: Normal, Diabetic Macular Edema, Drusen and Choroidal Neovascularization. 
+
+## 2) TABULAR DATA 
+
+- **Leukemia** : this tabular dataset comes from the Curated Microarray Database [40], which is a repository containing 78 handpicked cancer microarray datasets, extensively curated from 30 000 studies from the Gene Expression Omnibus (GEO), solely for machine learning. For our study, we experimented on the leukemia dataset which contains 281 samples with 22 284 gene expression values with the task of classifying 7 types of leukemic cancer. Microarray data include risks from re-identification, inference of sensitive traits, and linkage attacks [41], [42], which make them privacy-sensitive and important to protect. 
+
+151531 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**TABLE 1.** Macro F1-Score performance with randomized grid search training in a 10-fold stratified cross-validation between using the original data (Org) vs data shared as the latent space only being the baseline, (BASE, [13]) vs the encoded data produced from our suggested ppML framework (Enc). 
+
+**==> picture [484 x 85] intentionally omitted <==**
+
+**==> picture [487 x 49] intentionally omitted <==**
+
+## _B. MULTIMODAL DATASET_ 
+
+- **TCGA Breast Information Core** is a multi-omics dataset for breast cancer. Different types of highthroughput sequencing methods used parameters of DNA genome sequence, RNA expression and DNA methylation. Each datatype is labeled with the term ‘‘omics’’ (genomics, transcriptomics and methylomics respectively for our case). This dataset was leveraged by [43], [44], and [45] to perform and experiment on multi-omics and multi-view clustering methods. However, since the current version of our representation-oriented encoding framework is specific to supervised learning use cases, we applied it to predict the survival status of patients. Multi-omics data have high privacy value because they include many personal attributes and trait-related features, making them especially sensitive to privacy issues [46], [47], [48]. 
+
+## **V. EXPERIMENTS AND EVALUATION** 
+
+In this section, we present experiments conducted to compare the performance of training models on the encoded data against models directly trained on the original data or trained only on the latent space embedding [13]. 
+
+## _A. MODEL PARAMETERS_ 
+
+Details about the type, number and hyperparameters of the layers composing the residual autoencoder in our framework are presented in Appendix A. Hardware specifications are presented in Appendix B. 
+
+learning models (KNN, SVM, Random Forests, MultiLayer Perceptron) in a randomized grid search manner (Appendix C) on the original data _x[train]_ , the latent space embedding only (baseline) and on our encoded data _�[train]_ and compared the performance metrics on the respective test points. The selection of K-Nearest Neighbors (KNN), Support Vector Machines (SVM), Random Forests, and Multi-Layer Perceptrons (MLP) as classifiers in our study is motivated by their distinct characteristics and strengths in downstream classification tasks giving a diversity of choice knowing that each one has its own learning paradigm and structure. In addition, they are prevalent in the field of machine learning research and present in multiple comparative studies [49], [50], [51], [52]. 
+
+For MNIST, FashionMNIST, and Retinal OCT since they are images we trained their original versions using a ResNet50. From Table 1 we can empirically observe that the average macro F1-score of models trained on the encoded data is most of the time better than for the other approaches. 
+
+**TABLE 2.** Comparison between the silhouette score applied on the final concatenated encoding of the test set to evaluate the effect of adding center loss. 
+
+**==> picture [215 x 35] intentionally omitted <==**
+
+## _B. EXPERIMENTAL SETUP_ 
+
+For every dataset, we trained the residual autoencoder of our encoding framework on the train set, then obtained the concatenated encoding _�[train]_ and _�[test]_ for the train and test sets, respectively. We then trained a set of machine 
+
+We further explored the impact of the introduced center loss by comparing the silhouette score of the concatenated encoding _�_ with and without applying center loss. Prior to calculating the silhouette score we first reduce the concatenated encoding to 2 dimensions using t-SNE. As a 
+
+151532 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**TABLE 3.** For each dataset, we took the best model found in Table 1 based on our encoding framework and evaluated the effect of the PCA cosine similarity loss. 
+
+**==> picture [295 x 35] intentionally omitted <==**
+
+reminder, silhouette score is a quantitative metric, which measures how good clusters are separated. Table 2 summarizes the silhouette score comparison between two versions of our framework (with/without center loss). We observe an increase of the silhouette score by 478%, 43%, and 57% for FashionMNIST, Leukemia, and TCGA, respectively after adding the center loss and a small decrease of 3% and 0.5% for MNIST and OCT. We notice the positive impact of the center loss in producing well seperated clusters especially for the more complicated prediction tasks. 
+
+We also applied an ablation study to check the impact of the introduced cosine similarity loss on PCA (Equation 4). For this case, we only took the best type of ML model per dataset while using the encoded data in Table 1. The results of this ablation study are presented in Table 3. We do observe that the introduction of the PCA loss contributed to an increase of the performance in all datasets except MNIST. 
+
+## **VI. THREAT ANALYSIS** 
+
+In our threat analysis, privacy is defined as the inability of an adversary to reconstruct the original training dataset from the shared latent representations or prediction outputs. Thus, the main aim here is to protect our training data _x[train]_ to be recreated from model inversion attack. In our solution, we consider four different actors: data owner(s), cloud server, users having access to inference services and institutions where encoder _E_ ( _._ ) and final model _M�_ are shared. We assume that the cloud server, users, and institutions are honest but curious, meaning they are expected to follow the protocol. The main goal of the adversary corrupting these actors is to attempt to infer sensitive information about the original training samples by using their observations of the protocol execution. 
+
+The view of the adversary _A_ corrupting the cloud consists of the encoded samples of the data owner(s) and the trained model on these samples. Since the adversary _A_ has no knowledge about the utilized encoder by the data owner(s), it cannot return back to the original samples from the encoded samples. For instance, the adversary _A_ knows neither the dimensionality nor the type of the original data. In addition to the protection of the privacy of the samples, our framework preserves the privacy of the model implicitly as well. Although the adversary _A_ has access to the trained classifier model in plaintext, it has no use unless the adversary has access to the encoder. Therefore, we can conclude that our proposed framework securely allows the outsourcing of the computation to a third party or enables 
+
+the third party to benefit from the output of the model without compromising the privacy of the data or the model. 
+
+The adversary _A_ corrupting at least one user can perform predictions on the model _M�_ for the encodings of given data. Through using the prediction service as an API, _A_ has access only to the final predictions _ynew_ . Without knowledge of the encodings of the training samples and the encoder _E_ ( _._ ), it is not possible to extract the training samples. _A_ might still perform membership inference attacks which is a common problem for all machine learning models trained without differential privacy. Our solution does not aim to address these weaknesses. The adversary, _A_ , who has compromised at least one institution, can access both the encoder _E_ ( _._ ) and the model _M�_ . _A_ can use _E_ ( _._ ) to encode new data, and then use the encodings to make predictions using _M�_ , resulting in ( _�, y�_ ). Without the encodings of the original training samples, it is impossible to extract the training data. _A_ can also perform attacks like model inversion and membership inference. However, as we mentioned, we do not present a solution to counteract these types of attacks in this article. 
+
+The adversary _A_ , who has compromised at least one institution and the cloud server, can access the encoder _E_ ( _._ ) and the encodings of the original training samples. In this scenario, _A_ can train the decoder _Dinv_ ( _._ ) by using the data of compromised institution and the encoder _E_ ( _._ ) to reconstruct the original training samples. Therefore, in our security model, we assume that the cloud server and institutions do not collude. This assumption is practical in real-world scenarios. Data owners can conceal their identities from the cloud server, making it difficult to determine with whom the model trained by the cloud server is shared. The four scenarios described in our threat analysis are illustrated in Figure 5. 
+
+## **VII. LIMITATIONS OF THE PROPOSED FRAMEWORK** 
+
+Even though our encoding framework showed great performance-privacy results, it is for now still constrained to specific scenarios. Our framework is task-oriented which means that it requires the presence of a supervision task that guides our autoencoder for presenting a meaningful mapping. However, it is known within the ML community that most datasets do lack annotation [53], [54], [55] which currently excludes our proposed ppML encoding technique to be leveraged for unsupervised use cases. A direction that might be explored to make our method less dependent on supervised learning cases is to include self-supervised learning in the process, since it is a training paradigm which aims to create 
+
+151533 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**==> picture [236 x 136] intentionally omitted <==**
+
+**FIGURE 5.** This figure summarizes the threat analysis schema with the four actors taking part in it. In ⃝ **1** the adversary corrupts the cloud, in ⃝ **2** the adversary corrupts a user, in ⃝ **3** the adversary will have an access to one of the institutions and in ⃝ **4** the adversary will corrupt both the cloud and one of the institutions. It is only in the latter scenario where the risk of inverting the original data might occur since the adversary will have access to the encoder _E_ ( _**.**_ ) and the encoding of the original training samples _**�**_ thus a decoder _Dinv_ ( _**.**_ ) can be trained on the pair of the institute data to perform an inversion attack on _**�**_ . 
+
+subtasks from the dataset structure and train the model to solve it so instead of depending on explicitly labeled datasets, self-supervised models extract meaningful representations by designing pretext auxiliary problems that allow the model to predict parts of the data from other parts. In addition self-supervised learning is the core of training foundation models which makes it a good alternative than relying only on supervised datasets. 
+
+In addition, our model is not generic towards all types of data training distributions, in fact, our current framework is applicable only if the data is vertically split among input parties where they share the same sample ID but different feature spaces, like in the multimodal example used in our experiments, which excludes (for now) horizontal federated learning [56]. 
+
+Regarding computational overhead, the incorporation of the proposed components increases the training and inference complexity by a factor of approximately 2× to 5× compared to the baseline model (Table 4). The inference time includes obtaining the encoding for both the training and testing datasets. This increase, while non-trivial, remains highly feasible within typical computational budgets. In contrast, training neural networks using homomorphic encryption (HE) introduces substantial computational challenges. HE operates on encrypted data without decrypting it, which requires arithmetic operations over ciphertexts instead of plaintexts. These operations are inherently more complex, often resulting in computational overheads that are several orders of magnitude higher than standard training [57], [58], [59]. In comparison, the computational cost introduced by our method is modest and well within acceptable bounds for practical deployment. 
+
+## **VIII. CONCLUSION AND FUTURE WORKS** 
+
+In this study, we introduced an encoding strategy powered by representation learning leveraged for privacy purposes. 
+
+**TABLE 4.** Comparison of training and inference times for baseline and our method across datasets. 
+
+**==> picture [231 x 99] intentionally omitted <==**
+
+The main goal and motivation behind implementing such a framework are to take advantage of discriminative representations learned in the hidden layers in the encoder part and take their concatenation as the encoding to be shared with other parties. To achieve this, we implemented a supervised residual autoencoder trained to consider both data reconstruction and an assigned classification task. To ensure a good representation we strengthened the training with two introduced losses one being the center loss applied on the concatenated encoding and a cosine similarity loss used to force the concatenation in having the same direction as the original input. We further presented the application workflow of our framework in a unimodal and multimodal settings. Our framework allows us to benefit from external computational resources to perform training on the encoded data in a secure fashion since no information about the data is being revealed. As future work, we look forward to expanding the domain application of our encoding framework by including unlabeled datasets and horizontally distributed data for federated learning. 
+
+## **APPENDIX A** 
+
+## **MODELS DETAILS** 
+
+We present here more details about the type, number and hyperparameters of the layers composing the residual autoencoder in our framework. As previously mentioned in Section III-A, two versions of supervised residual autoencoders were used in our experiments. If the modality is of type image then convolution layers are included and we name it as C-SRAE. Otherwise we only include dense layers under the name SRAE. The latter is applied for the leukemia and TCGA datasets both being in a tabular format. C-SRAE is also presented in two different formats, a light version for small image input data as MNIST and FashionMNIST, and another for bigger image sizes as OCT with more convolution layers added. Fig 6 presents more details about the three architectural types. However, for more uniformity the final encoding _�_ has the same shape ( _N ,_ 480) across the three presented versions. We also applied _L_ 1 _/L_ 2 kernel regularization on every layer for better generalizability and _L_ 1 activity regularization on the dense layers taking part in the final concatenated encoding _�_ to ensure a proper invariant representation. We used _Adam_ 
+
+151534 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**==> picture [398 x 417] intentionally omitted <==**
+
+**FIGURE 6. (a)** , **(b)** , **(c)** are the model’s backbone architecture for (Leukemia **+** TCGA), (MNIST **+** FashionMNIST) and (OCT) respectively. The layers colored with orange are the dense layers of the encoder part that are connected to a feed-forward neural classifier _fi_ ( _**.**_ ). As mentioned in Section II-B, for better mapping invariance we applied _L_ 1 _**/** L_ 2 kernel regularizer on all layers and _L_ 1 activity regularizer on the layer participating in the concatenated encoding (orange-colored). The final encoding _**�**_ however has the same shape ( _N_ _**,**_ 480) in the three versions. 
+
+as the optimizer and we monitored the training with an _Early Stopping_ callback on the validation loss. 
+
+## **APPENDIX B** 
+
+## **SYSTEM COMPONENTS** 
+
+Here we provide details about the hardware parts constituting our system. 
+
+**TABLE 5.** Hardware specifications. 
+
+**==> picture [179 x 56] intentionally omitted <==**
+
+## **APPENDIX C** 
+
+## **TRAINING DETAILS** 
+
+Here we provide more details about the set of hyperparameters related to the machine learning models used in our experiments and that were explored through a randomized grid search. 
+
+The models and grid search were implemented using Sklearn library. 
+
+For training the residual autoencoders we used the deep learning libraries Tensorflow 2.5.0 and Keras 2.0. 
+
+151535 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+**TABLE 6.** Hyperparameters for randomized grid search. 
+
+**==> picture [213 x 130] intentionally omitted <==**
+
+## **ACKNOWLEDGMENT** 
+
+The authors thank the International Max Planck Research School for Intelligent Systems (IMPRS-IS) for supporting Sofiane Ouaari in his research. They acknowledge support from the Open Access Publication Fund of the University of Tübingen. 
+
+## **REFERENCES** 
+
+- [1] R. Shokri, M. Stronati, C. Song, and V. Shmatikov, ‘‘Membership inference attacks against machine learning models,’’ in _Proc. IEEE Symp. Secur. Privacy (SP)_ , May 2017, pp. 3–18. 
+
+- [2] M. Fredrikson, S. Jha, and T. Ristenpart, ‘‘Model inversion attacks that exploit confidence information and basic countermeasures,’’ in _Proc. 22nd ACM SIGSAC Conf. Comput. Commun. Secur._ , Oct. 2015, pp. 1322–1333. 
+
+- [3] K. C. Wang, Y. Fu, K. Li, A. Khisti, R. Zemel, and A. Makhzani, ‘‘Variational model inversion attacks,’’ in _Proc. Adv. Neural Inf. Process. Syst._ , 2021, pp. 9706–9719. 
+
+- [4] D. Ye, T. Zhu, S. Zhou, B. Liu, and W. Zhou, ‘‘Label-only model inversion attack: The attack that requires the least information,’’ 2022, _arXiv:2203.06555_ . 
+
+- [5] H. Hijmans and C. D. Raab, ‘‘Ethical Dimensions of the GDPR,’’ in _Commentary on the General Data Protection Regulation_ . Cheltenham, U.K.: Edward Elgar, 2018. 
+
+- [6] J. Rochel, ‘‘Ethics in the GDPR: A blueprint for applied legal theory,’’ _Int. Data Privacy Law_ , vol. 11, no. 2, pp. 209–223, Aug. 2021. 
+
+- [7] M. Abadi, A. Chu, I. Goodfellow, H. B. McMahan, I. Mironov, K. Talwar, and L. Zhang, ‘‘Deep learning with differential privacy,’’ in _Proc. ACM SIGSAC Conf. Comput. Commun. Secur._ , 2016, pp. 308–318. 
+
+- [8] N. H. Phan, Y. Wang, X. Wu, and D. Dou, ‘‘Differential privacy preservation for deep auto-encoders: An application of human behavior prediction,’’ in _Proc. AAAI Conf. Artif. Intell._ , 2016, vol. 30, no. 1, pp. 1–18. 
+
+- [9] S. Truex, N. Baracaldo, A. Anwar, T. Steinke, H. Ludwig, R. Zhang, and Y. Zhou, ‘‘A hybrid approach to privacy-preserving federated learning,’’ in _Proc. 12th ACM Workshop Artif. Intell. Secur._ , 2019, pp. 1–11. 
+
+- [10] E. Hesamifard, H. Takabi, and M. Ghasemi, ‘‘CryptoDL: Deep neural networks over encrypted data,’’ 2017, _arXiv:1711.05189_ . 
+
+- [11] J.-W. Lee, H. Kang, Y. Lee, W. Choi, J. Eom, M. Deryabin, E. Lee, J. Lee, D. Yoo, Y.-S. Kim, and J.-S. No, ‘‘Privacy-preserving machine learning with fully homomorphic encryption for deep neural network,’’ _IEEE Access_ , vol. 10, pp. 30039–30054, 2022. 
+
+- [12] J. Lee, E. Lee, J.-W. Lee, Y. Kim, Y.-S. Kim, and J.-S. No, ‘‘Precise approximation of convolutional neural networks for homomorphically encrypted data,’’ _IEEE Access_ , vol. 11, pp. 62062–62076, 2023. 
+
+- [13] A. M. Quintero-Ossa, J. Solano, H. Jarcía, D. Zarruk, A. C. Bahnsen, and C. Valencia, ‘‘Privacy-preserving machine learning for collaborative data sharing via auto-encoder latent space embeddings,’’ 2022, _arXiv:2211.05717_ . 
+
+- [14] D. P. Kingma and M. Welling, ‘‘Auto-encoding variational Bayes,’’ 2013, _arXiv:1312.6114_ . 
+
+- [15] M. Sakurada and T. Yairi, ‘‘Anomaly detection using autoencoders with nonlinear dimensionality reduction,’’ in _Proc. MLSDA 2nd Workshop Mach. Learn. Sensory Data Anal._ , Dec. 2014, pp. 4–11. 
+
+- [16] D. Ferreira, S. Silva, A. Abelha, and J. Machado, ‘‘Recommendation system using autoencoders,’’ _Appl. Sci._ , vol. 10, no. 16, p. 5510, Aug. 2020. 
+
+- [17] Y. Pan, F. He, and H. Yu, ‘‘Learning social representations with deep autoencoder for recommender system,’’ _World Wide Web_ , vol. 23, no. 4, pp. 2259–2279, Jul. 2020. 
+
+- [18] L. Le, A. Patterson, and M. White, ‘‘Supervised autoencoders: Improving generalization performance with unsupervised regularizers,’’ in _Proc. Adv. Neural Inf. Process. Syst._ , vol. 31, 2018, pp. 1–18. 
+
+- [19] Y. Bengio, A. Courville, and P. Vincent, ‘‘Representation learning: A review and new perspectives,’’ _IEEE Trans. Pattern Anal. Mach. Intell._ , vol. 35, no. 8, pp. 1798–1828, Aug. 2013. 
+
+- [20] A. Rangamani, A. Mukherjee, A. Basu, A. Arora, T. Ganapathi, S. Chin, and T. D. Tran, ‘‘Sparse coding and autoencoders,’’ in _Proc. IEEE Int. Symp. Inf. Theory (ISIT)_ , Jun. 2018, pp. 36–40. 
+
+- [21] B. Mandal, G. Amariucai, and S. Wei, ‘‘Uncertainty-autoencoder-based privacy and utility preserving data type conscious transformation,’’ in _Proc. Int. Joint Conf. Neural Netw. (IJCNN)_ , Jul. 2022, pp. 1–8. 
+
+- [22] D. Luong, M. Tran, S. Gharib, K. Drossos, and T. Virtanen, ‘‘Representation learning for audio privacy preservation using source separation and robust adversarial learning,’’ in _Proc. IEEE Workshop Appl. Signal Process. to Audio Acoust. (WASPAA)_ , Oct. 2023, pp. 1–5. 
+
+- [23] T. Xiao, Y. H. Tsai, K. Sohn, M. Chandraker, and M. H. Yang, ‘‘Adversarial learning of privacy-preserving and task-oriented representations,’’ in _Proc. AAAI Conf. Artif. Intell._ , 2020, vol. 34, no. 7, pp. 12434–12441. 
+
+- [24] T. Cao, A. Bie, A. Vahdat, S. Fidler, and K. Kreis, ‘‘Don’t generate me: Training differentially private generative models with sinkhorn divergence,’’ in _Proc. Adv. Neural Inf. Process. Syst._ , vol. 34, 2021, pp. 12480–12492. 
+
+- [25] F. Harder, K. Adamczewski, and M. Park, ‘‘DP-MERF: Differentially private mean embeddings with randomfeatures for practical privacypreserving data generation,’’ in _Proc. Int. Conf. Artif. Intell. Statist._ , 2021, pp. 1819–1827. 
+
+- [26] Y. Wang, Z. Ding, Y. Xiao, D. Kifer, and D. Zhang, ‘‘DPGen: Automated program synthesis for differential privacy,’’ in _Proc. ACM SIGSAC Conf. Comput. Commun. Secur._ , Nov. 2021, pp. 393–411. 
+
+- [27] D. Daum, R. Osuala, A. Riess, G. Kaissis, J. A. Schnabel, and M. Di Folco, ‘‘On differentially private 3D medical image synthesis with controllable latent diffusion models,’’ in _Proc. MICCAI_ . Cham, Switzerland: Springer, 2024, pp. 139–149. 
+
+- [28] K. Li, C. Gong, Z. Li, Y. Zhao, X. Hou, and T. Wang, ‘‘PrivImage: Differentially private synthetic image generation using diffusion models with semantic-aware pretraining,’’ in _Proc. 33rd USENIX Secur. Symp._ , 2024, pp. 4837–4854. 
+
+- [29] B. Liu, P. Wang, and S. Ge, ‘‘Learning differentially private diffusion models via stochastic adversarial distillation,’’ in _Proc. Eur. Conf. Comput. Vis._ Cham, Switzerland: Springer, 2024, pp. 55–71. 
+
+- [30] J. Chen, W. H. Wang, and X. Shi, ‘‘Differential privacy protection against membership inference attack on machine learning for genomic data,’’ in _Proc. Biocomputing_ , Nov. 2020, pp. 26–37. 
+
+- [31] T. Ji and P. Li, ‘‘Less is more: Revisiting the Gaussian mechanism for differential privacy,’’ in _Proc. 33rd USENIX Secur. Symp._ , 2024, pp. 937–954. 
+
+- [32] S. Meisenbacher, N. Nandakumar, A. Klymenko, and F. Matthes, ‘‘A comparative analysis of word-level metric differential privacy: Benchmarking the privacy-utility trade-off,’’ 2024, _arXiv:2404.03324_ . 
+
+- [33] T. Dong, B. Zhao, and L. Lyu, ‘‘Privacy for free: How does dataset condensation help privacy?’’ in _Proc. Int. Conf. Mach. Learn._ , 2022, pp. 5378–5396. 
+
+- [34] B. Zhao, K. R. Mopuri, and H. Bilen, ‘‘Dataset condensation with gradient matching,’’ 2020, _arXiv:2006.05929_ . 
+
+- [35] C. S. Wickramasinghe, D. L. Marino, and M. Manic, ‘‘ResNet autoencoders for unsupervised feature learning from high-dimensional data: Deep models resistant to performance degradation,’’ _IEEE Access_ , vol. 9, pp. 40511–40520, 2021. 
+
+- [36] Y. Wen, K. Zhang, Z. Li, and Y. Qiao, ‘‘A discriminative feature learning approach for deep face recognition,’’ in _Proc. 14th Eur. Conf. Comput. Vis._ Cham, Switzerland: Springer, Oct. 2016, pp. 499–515. 
+
+- [37] Y. Lecun, L. Bottou, Y. Bengio, and P. Haffner, ‘‘Gradient-based learning applied to document recognition,’’ _Proc. IEEE_ , vol. 86, no. 11, pp. 2278–2324, 1998. 
+
+- [38] H. Xiao, K. Rasul, and R. Vollgraf, ‘‘Fashion-MNIST: A novel image dataset for benchmarking machine learning algorithms,’’ 2017, _arXiv:1708.07747_ . 
+
+151536 
+
+VOLUME 13, 2025 
+
+S. Ouaari et al.: Robust Representation Learning for ppML: A Multi-Objective Autoencoder Approach 
+
+**==> picture [77 x 14] intentionally omitted <==**
+
+- [39] D. S. Kermany et al., ‘‘Identifying medical diagnoses and treatable diseases by image-based deep learning,’’ _Cell_ , vol. 172, no. 5, pp. 1122–1131, Feb. 2018. 
+
+- [40] B. C. Feltes, E. B. Chandelier, B. I. Grisci, and M. Dorn, ‘‘CuMiDa: An extensively curated microarray database for benchmarking and testing of machine learning approaches in cancer research,’’ _J. Comput. Biol._ , vol. 26, no. 4, pp. 376–386, Apr. 2019. 
+
+- [41] R. A. Philibert, N. Terry, C. Erwin, W. J. Philibert, S. R. Beach, and G. H. Brody, ‘‘Methylation array data can simultaneously identify individuals and convey protected health information: An unrecognized ethical concern,’’ _Clin. Epigenetics_ , vol. 6, no. 1, p. 28, Dec. 2014. 
+
+- [42] S. M. Narayan, N. Kohli, and M. M. Martin, ‘‘Addressing contemporary threats in anonymised healthcare data using privacy engineering,’’ _npj Digit. Med._ , vol. 8, no. 1, p. 145, Mar. 2025. 
+
+**==> picture [73 x 91] intentionally omitted <==**
+
+SOFIANE OUAARI received the B.Sc. degree in computer science from the University of Constantine 2, Algeria, in 2020, and the M.Sc. degree in data science from Eötvös Loránd University (ELTE), Budapest, Hungary, in 2022. He is currently pursuing the Ph.D. degree with the University of Tübingen and the International Max Planck Research School for Intelligent Systems (IMPRS-IS), Germany. His research interest includes privacy-preserving machine learning for healthcare. 
+
+- [43] N. Rappoport and R. Shamir, ‘‘Multi-omic and multi-view clustering algorithms: Review and cancer benchmark,’’ _Nucleic Acids Res._ , vol. 47, no. 2, p. 1044, Jan. 2019. 
+
+- [44] B. Röder, N. Kersten, M. Herr, N. K. Speicher, and N. Pfeifer, ‘‘Web-rMKL: A Web server for dimensionality reduction and sample clustering of multiview data based on unsupervised multiple kernel learning,’’ _Nucleic Acids Res._ , vol. 47, no. W1, pp. W605–W609, Jul. 2019. 
+
+- [45] L. Cantini, P. Zakeri, C. Hernandez, A. Naldi, D. Thieffry, E. Remy, and A. Baudot, ‘‘Benchmarking joint multi-omics dimensionality reduction approaches for the study of cancer,’’ _Nature Commun._ , vol. 12, no. 1, p. 124, Jan. 2021. 
+
+- [46] M. Oestreich, D. Chen, J. L. Schultze, M. Fritz, and M. Becker, ‘‘Privacy considerations for sharing genomics data,’’ _EXCLI J._ , vol. 20, p. 1243, Jul. 2021. 
+
+- [47] S. Arshad, J. Arshad, M. M. Khan, and S. Parkinson, ‘‘Analysis of security and privacy challenges for DNA-genomics applications and databases,’’ _J. Biomed. Informat._ , vol. 119, Jul. 2021, Art. no. 103815. 
+
+**==> picture [73 x 91] intentionally omitted <==**
+
+ALI BURAK ÜNAL received the B.Sc. and M.Sc. degrees in computer science from Bilkent University, Türkiye, and the Ph.D. degree from the University of Tübingen. He is currently a Postdoctoral Researcher with the University of Tübingen, working on machine learning and data privacy, and their applications to medical problems. His current research interests include federated learning and deep learning. 
+
+- [48] M. M. Alsaffar, M. Hasan, G. P. McStay, and M. Sedky, ‘‘Digital DNA lifecycle security and privacy: An overview,’’ _Briefings Bioinf._ , vol. 23, no. 2, p. 607, Mar. 2022. 
+
+- [49] E. Y. Boateng, J. Otoo, and D. A. Abaye, ‘‘Basic tenets of classification algorithms K-nearest-neighbor, support vector machine, random forest and neural network: A review,’’ _J. Data Anal. Inf. Process._ , vol. 8, no. 4, pp. 341–357, 2020. 
+
+- [50] R. A. Nugrahaeni and K. Mutijarsa, ‘‘Comparative analysis of machine learning KNN, SVM, and random forests algorithm for facial expression classification,’’ in _Proc. Int. Seminar Appl. Technol. Inf. Commun. (ISemantic)_ , Aug. 2016, pp. 163–168. 
+
+- [51] P. Thanh Noi and M. Kappas, ‘‘Comparison of random forest, K-nearest neighbor, and support vector machine classifiers for land cover classification using Sentinel-2 imagery,’’ _Sensors_ , vol. 18, no. 1, p. 18, Dec. 2017. 
+
+- [52] F. D. Setiawan Sumadi and C. S. Kusuma Aditya, ‘‘Comparative analysis of DDoS detection techniques based on machine learning in OpenFlow network,’’ in _Proc. 3rd Int. Seminar Res. Inf. Technol. Intell. Syst. (ISRITI)_ , Dec. 2020, pp. 152–157. 
+
+- [53] M. Humbert-Droz, P. Mukherjee, and O. Gevaert, ‘‘Strategies to address the lack of labeled data for supervised machine learning training with electronic health records: Case study for the extraction of symptoms from clinical notes,’’ _JMIR Med. Informat._ , vol. 10, no. 3, Mar. 2022, Art. no. e32903. 
+
+- [54] N.-Q. Nguyen and T.-S. Le, ‘‘A semi-supervised learning method to remedy the lack of labeled data,’’ in _Proc. 15th Int. Conf. Adv. Comput. Appl. (ACOMP)_ , Nov. 2021, pp. 78–84. 
+
+METE AKGÜN received the B.Sc. degree in computer engineering from Bahcesehir University, Türkiye, in 2005, and the M.Sc. and Ph.D. degrees in computer engineering from Boğaziçi University, Türkiye, in 2009 and 2016, respectively. He was a Senior Researcher with the Center of Research for Advanced Technologies of Informatics and Information Security (TUBITAK BILGEM), Kocaeli, Türkiye. He is a Computer Scientist and Security Researcher with the University of Tübingen, where he leads the Medical Data Privacy and Privacy-Preserving ML (MDPPML) Group. His research interests include applied cryptography, data privacy, security protocols, and machine learning. 
+
+- [55] J. Xu, W. Zuo, S. Liang, and X. Zuo, ‘‘A review of dataset and labeling methods for causality extraction,’’ in _Proc. 28th Int. Conf. Comput. Linguistics_ , 2020, pp. 1519–1531. 
+
+- [56] Q. Yang, Y. Liu, T. Chen, and Y. Tong, ‘‘Federated machine learning: Concept and applications,’’ _ACM Trans. Intell. Syst. Technol._ , vol. 10, no. 2, pp. 1–19, 2019. 
+
+- [57] R. Gilad-Bachrach, N. Dowlin, K. Laine, K. Lauter, M. Naehrig, and J. Wernsing, ‘‘Cryptonets: Applying neural networks to encrypted data with high throughput and accuracy,’’ in _Proc. Int. Conf. Mach. Learn._ , 2016, pp. 201–210. 
+
+- [58] Y. Zhang, M. Zheng, Y. Shang, X. Chen, and Q. Lou, ‘‘Heprune: Fast private training of deep neural networks with encrypted data pruning,’’ in _Proc. Adv. Neural Inf. Process. Syst._ , 2024, pp. 51063–51084. 
+
+- [59] W. Liu, L. You, Y. Shao, X. Shen, G. Hu, J. Shi, and S. Gao, ‘‘From accuracy to approximation: A survey on approximate homomorphic encryption and its applications,’’ _Comput. Sci. Rev._ , vol. 55, Feb. 2025, Art. no. 100689. 
+
+**==> picture [73 x 91] intentionally omitted <==**
+
+NICO PFEIFER received the Ph.D. degree from the University of Tübingen, in 2009. After positions with Microsoft Research and the Max Planck Institute for Informatics, he became a Full Professor with the University of Tübingen, in 2017. His research interests include machine learning, medical data analysis, and computational biology. 
+
+151537 
+
+VOLUME 13, 2025 
+

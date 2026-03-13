@@ -1,10 +1,13 @@
-from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from google import genai
+from modules.chunker import chunk_text
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+MODEL_NAME = "gemini-3-flash-preview"
 
 def extract_key_findings(sections: dict):
     important_text = "\n\n".join([
@@ -16,27 +19,36 @@ def extract_key_findings(sections: dict):
     if not important_text.strip():
         return []
 
-    prompt = f"""
-You are analyzing a research paper.
+    chunks = chunk_text(important_text, model="gpt-4.1-mini")  # fine to reuse your existing token chunking
+    all_findings = []
 
-From the following paper sections, extract 5 concise key findings.
-Return them as bullet points.
+    for chunk in chunks:
+        prompt = f"""
+Extract the key findings from the following research paper content.
 
-Paper content:
-{important_text}
+Return 3 to 5 concise bullet points.
+
+Content:
+{chunk}
 """
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-        )
+        try:
+            response = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=prompt
+            )
 
-        text = response.choices[0].message.content.strip()
-        findings = [line.strip("-• ").strip() for line in text.splitlines() if line.strip()]
-        return findings
+            text = (response.text or "").strip()
 
-    except Exception as e:
-        print(f"❌ Error extracting key findings: {e}")
-        return []
+            findings = [
+                line.strip("-• ").strip()
+                for line in text.splitlines()
+                if line.strip()
+            ]
+
+            all_findings.extend(findings)
+
+        except Exception as e:
+            print(f"❌ Error extracting findings: {e}")
+
+    return all_findings

@@ -1,10 +1,12 @@
-from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from google import genai
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+MODEL_NAME = "gemini-3-flash-preview"
 
 def compare_papers(all_findings: dict):
     comparison_input = ""
@@ -20,7 +22,7 @@ You are comparing multiple research papers.
 Based on the findings below, identify:
 1. Common themes
 2. Major differences
-3. Any overlapping conclusions
+3. Overlapping conclusions
 
 Return the result in clear bullet points.
 
@@ -28,13 +30,12 @@ Return the result in clear bullet points.
 """
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt
         )
 
-        return response.choices[0].message.content.strip()
+        return (response.text or "").strip()
 
     except Exception as e:
         print(f"❌ Error comparing papers: {e}")
