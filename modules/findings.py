@@ -1,54 +1,57 @@
 import os
 from dotenv import load_dotenv
 from google import genai
-from modules.chunker import chunk_text
 
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+MODEL_NAME = "gemini-2.5-flash"
 
-MODEL_NAME = "gemini-3-flash-preview"
 
-def extract_key_findings(sections: dict):
-    important_text = "\n\n".join([
-        f"{name.upper()}:\n{content}"
-        for name, content in sections.items()
-        if name in ["abstract", "results", "discussion", "conclusion"] and content
-    ])
+def extract_key_findings(sections):
+    combined_text = "\n\n".join(
+        value.strip() for value in sections.values() if value and value.strip()
+    )
 
-    if not important_text.strip():
+    if not combined_text:
         return []
 
-    chunks = chunk_text(important_text, model="gpt-4.1-mini")  # fine to reuse your existing token chunking
-    all_findings = []
+    combined_text = combined_text[:30000]
 
-    for chunk in chunks:
-        prompt = f"""
-Extract the key findings from the following research paper content.
+    prompt = f"""
+You are reviewing a research paper.
 
-Return 3 to 5 concise bullet points.
+Extract the 3 to 5 most important findings from the text below.
 
-Content:
-{chunk}
+Rules:
+- Return only bullet points
+- Keep each point concise
+- Do not ask for more input
+- Do not add explanation before or after
+
+TEXT:
+{combined_text}
 """
 
-        try:
-            response = client.models.generate_content(
-                model=MODEL_NAME,
-                contents=prompt
-            )
+    response = client.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt
+    )
 
-            text = (response.text or "").strip()
+    findings = []
+    for line in response.text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
 
-            findings = [
-                line.strip("-• ").strip()
-                for line in text.splitlines()
-                if line.strip()
-            ]
+        lower_line = line.lower()
+        if lower_line.startswith("here are the"):
+            continue
 
-            all_findings.extend(findings)
+        line = line.lstrip("-•* ").strip()
+        line = line.replace("**", "").strip()
 
-        except Exception as e:
-            print(f"❌ Error extracting findings: {e}")
+        if line:
+            findings.append(line)
 
-    return all_findings
+    return findings[:5]

@@ -1,20 +1,14 @@
 [
     {
-        "paperId": "b2f94f5bd1587b195116d121ef6643514229b438",
-        "title": "Landslide detection using deep learning and object-based image analysis",
-        "year": 2022,
-        "localPdfPath": "data\\raw_pdfs\\b2f94f5bd1587b195116d121ef6643514229b438.pdf"
+        "paperId": "929305892d4ddae575a0fc23227a8139f7681632",
+        "title": "Jailbroken: How Does LLM Safety Training Fail?",
+        "year": 2023,
+        "localPdfPath": "data\\raw_pdfs\\929305892d4ddae575a0fc23227a8139f7681632.pdf"
     },
     {
-        "paperId": "a40170df3cb0a8b874b0c30d513e0046a97b46a9",
-        "title": "Object Detection and Recognition in Real Time Using Deep Learning for Visually Impaired People",
-        "year": 2022,
-        "localPdfPath": "data\\raw_pdfs\\a40170df3cb0a8b874b0c30d513e0046a97b46a9.pdf"
-    },
-    {
-        "paperId": "4875b31ed398de0839eb264177753fd560f9be19",
-        "title": "Potato Crop Stress Identification in Aerial Images using Deep Learning-based Object Detection",
-        "year": 2021,
-        "localPdfPath": "data\\raw_pdfs\\4875b31ed398de0839eb264177753fd560f9be19.pdf"
+        "paperId": "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203",
+        "title": "EdgeShard: Efficient LLM Inference via Collaborative Edge Computing",
+        "year": 2025,
+        "localPdfPath": "data\\raw_pdfs\\007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf"
     }
 ]
