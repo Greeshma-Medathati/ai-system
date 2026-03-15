@@ -1,14 +1,14 @@
 [
     {
-        "paperId": "929305892d4ddae575a0fc23227a8139f7681632",
-        "title": "Jailbroken: How Does LLM Safety Training Fail?",
-        "year": 2023,
-        "localPdfPath": "data\\raw_pdfs\\929305892d4ddae575a0fc23227a8139f7681632.pdf"
+        "paperId": "a68fccc152d238f62848de1be8522ccd71137ac0",
+        "title": "ML-Leaks: Model and Data Independent Membership Inference Attacks and Defenses on Machine Learning Models",
+        "year": 2018,
+        "localPdfPath": "data\\raw_pdfs\\a68fccc152d238f62848de1be8522ccd71137ac0.pdf"
     },
     {
-        "paperId": "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203",
-        "title": "EdgeShard: Efficient LLM Inference via Collaborative Edge Computing",
-        "year": 2025,
-        "localPdfPath": "data\\raw_pdfs\\007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf"
+        "paperId": "5b0f2ff37a977fd4b0c845b27726b65682bf8ac6",
+        "title": "How to DP-fy ML: A Practical Guide to Machine Learning with Differential Privacy",
+        "year": 2023,
+        "localPdfPath": "data\\raw_pdfs\\5b0f2ff37a977fd4b0c845b27726b65682bf8ac6.pdf"
     }
 ]
