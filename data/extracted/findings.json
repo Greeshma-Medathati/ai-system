@@ -1,16 +1,15 @@
 {
     "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf": [
-        "Existing LLMs heavily rely on cloud computing, leading to long response times, high bandwidth costs, and significant privacy concerns.",
-        "Edge computing is a promising solution to address cloud reliance by deploying LLMs closer to data sources, but current LLMs are too resource-intensive for most single edge devices.",
-        "Collaborative edge computing (CEC) is proposed to overcome single-device limitations, integrating geo-distributed edge devices and cloud servers to form a shared resource pool for efficient LLM inference.",
-        "EdgeShard, a novel framework, optimizes LLM inference by dynamically partitioning models and allocating shards to heterogeneous edge devices and cloud servers, significantly reducing latency (up to 50%) and increasing throughput (2x).",
-        "EdgeShard employs dynamic programming algorithms to efficiently select devices and partition LLMs, addressing challenges like heterogeneous device capabilities, memory constraints, and network bandwidth in edge environments."
+        "LLMs heavily rely on cloud computing, leading to long response times, high bandwidth costs, and privacy concerns.",
+        "Edge computing is a promising solution for LLM deployment, but LLMs are resource-intensive, often exceeding individual edge device capacities.",
+        "Collaborative Edge Computing (CEC) integrates geo-distributed edge devices and cloud servers to create a shared resource pool for efficient LLM inference.",
+        "EdgeShard, a proposed framework, optimizes LLM inference by partitioning models across heterogeneous edge devices and cloud servers, achieving up to 50% latency reduction and 2x throughput increase.",
+        "The framework tackles challenges unique to edge deployment, such as heterogeneous device capabilities and low-bandwidth networks, which are not addressed by cloud-centric LLM deployment solutions."
     ],
     "929305892d4ddae575a0fc23227a8139f7681632.pdf": [
         "State-of-the-art LLMs (GPT-4, Claude v1.3) remain vulnerable to jailbreak attacks despite extensive safety training and red-teaming.",
-        "Two core failure modes of safety training were identified: \"competing objectives\" and \"mismatched generalization.\"",
-        "New attacks designed based on these failure modes significantly outperform existing jailbreaks, succeeding on up to 100% of curated unsafe requests.",
-        "Jailbreaks may be inherent to existing safety training methods, and scaling alone is insufficient to resolve these safety failures.",
-        "Safety mechanisms require \"safety-capability parity,\" meaning they should be as sophisticated as the underlying model's capabilities."
+        "Two proposed failure modes, \"competing objectives\" and \"mismatched generalization,\" explain jailbreak success and guide the creation of new, effective attacks.",
+        "Newly designed attacks based on these failure modes achieved 100% success on curated unsafe prompts and up to 96% on a larger synthetic dataset, outperforming existing ad hoc jailbreaks.",
+        "Jailbreaks are inherent to current safety training methods, emphasizing the need for safety-capability parity and suggesting that scaling alone will not resolve these issues."
     ]
 }
