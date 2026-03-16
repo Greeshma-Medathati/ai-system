@@ -1,15 +1,15 @@
 {
-    "5b0f2ff37a977fd4b0c845b27726b65682bf8ac6.pdf": [
-        "Differential Privacy (DP) is the gold standard for formal data anonymization in ML, but its real-world adoption is hindered by limited practical guidance and difficulties in balancing privacy, utility, and computation.",
-        "Achieving both good accuracy and strong privacy with DP is often possible with sufficient computation and large training datasets.",
-        "DP provides formal data anonymization guarantees for training data, distinct from broader privacy principles like transparency or consent.",
-        "Rigorous application of DP to complex ML models requires careful attention to architectural adjustments, hyperparameter tuning, and precise privacy accounting, as simple methods may be insufficient."
+    "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf": [
+        "LLMs offer significant breakthroughs in AI but face challenges with cloud reliance, including long response times, high bandwidth costs, and privacy concerns.",
+        "Collaborative edge computing (CEC) is proposed as a solution, integrating geo-distributed edge devices and cloud servers to address LLM resource intensiveness and memory requirements.",
+        "EdgeShard is introduced as a framework for efficient collaborative LLM inference on heterogeneous edge devices and cloud servers.",
+        "EdgeShard employs dynamic programming algorithms to optimize LLM inference by jointly selecting devices and partitioning the model to minimize latency or maximize throughput.",
+        "Experimental results demonstrate that EdgeShard reduces latency by up to 50% and achieves 2x throughput compared to on-device and vertical cloud-edge collaborative inference methods."
     ],
-    "a68fccc152d238f62848de1be8522ccd71137ac0.pdf": [
-        "Membership inference attacks can be effectively conducted with substantially fewer assumptions than previously, including using only one shadow model or shadow models with different architectures and hyperparameters.",
-        "A \"data transferring attack\" enables effective membership inference even when shadow models are trained on data from entirely different domains.",
-        "Membership inference is possible without any shadow models or training, relying solely on statistical analysis of target model posteriors.",
-        "Dropout is an effective defense against membership inference for deep neural networks, significantly reducing attack performance while preserving or improving model utility.",
-        "Model stacking provides an effective defense mechanism against membership inference for various ML classifiers, substantially reducing attack performance with minimal impact on model utility."
+    "929305892d4ddae575a0fc23227a8139f7681632.pdf": [
+        "State-of-the-art LLMs (GPT-4, Claude v1.3) remain highly susceptible to jailbreak attacks despite extensive safety training and red-teaming efforts.",
+        "The study identifies two core failure modes of safety training: competing objectives and mismatched generalization.",
+        "New attacks designed based on these failure modes outperform existing ad hoc jailbreaks, succeeding on 100% of curated unsafe requests and over 96% of a larger dataset.",
+        "The findings emphasize the necessity of safety-capability parity and argue against scaling alone as a solution for these safety failure modes."
     ]
 }
