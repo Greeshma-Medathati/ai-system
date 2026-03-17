@@ -86,19 +86,35 @@ def format_findings_for_display(findings_data):
     if not findings_data:
         return "No findings available."
 
+    metadata_path = os.path.join(METADATA_DIR, "papers.json")
+    title_map = {}
+
+    if os.path.exists(metadata_path):
+        try:
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                papers = json.load(f)
+            for p in papers:
+                pid = p.get("paperId", "")
+                title = p.get("title", pid)
+                title_map[pid] = title
+        except Exception:
+            pass
+
     lines = []
 
     for paper, findings in findings_data.items():
-        clean_title = paper.replace(".pdf", "")
-        lines.append(f"## {clean_title}")
+        paper_id = paper.replace(".pdf", "")
+        title = title_map.get(paper_id, paper_id)
+
+        lines.append(f"## 📄 {title}")
         lines.append("")
 
         if findings:
             for finding in findings:
-                finding = finding.replace("**", "").strip()
-                lines.append(f"- {finding}")
+                clean = finding.replace("**", "").strip()
+                lines.append(f"• {clean}")
         else:
-            lines.append("- No findings extracted")
+            lines.append("• No findings extracted")
 
         lines.append("")
 
