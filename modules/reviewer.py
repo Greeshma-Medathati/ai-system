@@ -34,21 +34,24 @@ def generate_literature_review(all_findings: dict, paper_titles: dict):
             review_input += "- No findings extracted\n"
 
     prompt = f"""
-You are writing a literature review style summary of multiple research papers.
+You are writing a structured literature review based on multiple research papers.
 
-Using the paper titles and extracted findings below, write the output in this format:
-
-1. Start with 1–2 lines introducing that the following papers were analyzed.
-2. Then write one readable paragraph for each paper.
-   - Mention the paper title naturally
-   - Explain the main contribution and findings
-3. End with a final synthesis paragraph explaining the common direction of the papers.
+Your task:
+- Write in academic paragraph form
+- For each paper:
+  - briefly explain its main contribution
+- Then provide a final synthesis across all papers
 
 Rules:
-- Write in paragraph form
 - Do NOT use bullet points
-- Maintain an academic tone
-- Keep it clear and readable
+- Avoid repeating the same phrases
+- Keep it readable and structured
+- Mention paper ideas naturally (not as a list)
+
+Structure:
+1. Intro sentence (what papers are analyzed)
+2. One paragraph per paper (contribution + findings)
+3. Final synthesis paragraph (overall direction, insights)
 
 INPUT:
 {review_input}

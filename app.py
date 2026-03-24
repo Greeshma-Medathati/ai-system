@@ -10,6 +10,7 @@ from modules.search import search_papers
 from modules.downloader import is_pdf_accessible, download_pdf
 from modules.dataset import save_metadata
 from milestone2 import run_milestone2
+from milestone3 import run_milestone3
 
 
 # -----------------------------
@@ -128,12 +129,19 @@ def format_comparison_for_display(comparison_text):
     return comparison_text.replace("**", "")
 
 
+def format_final_draft_for_display(draft_text):
+    if not draft_text:
+        return "No final draft available."
+    return draft_text.replace("**", "")
+
+
 def read_outputs():
     metadata_rows = load_metadata_table()
     findings = load_json_file(os.path.join(EXTRACTED_DIR, "findings.json"))
     comparison = load_text_file(os.path.join(EXTRACTED_DIR, "comparison.txt"))
     narrative = load_text_file(os.path.join(EXTRACTED_DIR, "literature_review.txt"))
-    return metadata_rows, findings, comparison, narrative
+    final_draft = load_text_file(os.path.join(EXTRACTED_DIR, "final_review_draft.txt"))
+    return metadata_rows, findings, comparison, narrative, final_draft
 
 
 # -----------------------------
@@ -291,12 +299,13 @@ def run_analysis_ui():
             [],
             "No findings available.",
             "No comparison available.",
+            "",
             ""
         )
 
     try:
         run_milestone2()
-        metadata_rows, findings, comparison, narrative = read_outputs()
+        metadata_rows, findings, comparison, narrative, final_draft = read_outputs()
 
         formatted_findings = format_findings_for_display(findings)
         formatted_comparison = format_comparison_for_display(comparison)
@@ -306,7 +315,8 @@ def run_analysis_ui():
             metadata_rows,
             formatted_findings,
             formatted_comparison,
-            narrative
+            narrative,
+            format_final_draft_for_display(final_draft)
         )
 
     except Exception as e:
@@ -315,8 +325,29 @@ def run_analysis_ui():
             [],
             "No findings available.",
             "No comparison available.",
+            "",
             ""
         )
+
+
+def run_milestone3_ui():
+    ensure_dirs()
+
+    pdfs = [f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf")]
+    if not pdfs:
+        return "❌ No PDFs available. Please download or upload papers first.", ""
+
+    try:
+        run_milestone3()
+        final_draft = load_text_file(os.path.join(EXTRACTED_DIR, "final_review_draft.txt"))
+
+        if not final_draft:
+            return "❌ Milestone 3 finished, but no final draft was generated.", ""
+
+        return "✅ Milestone 3 completed successfully.", format_final_draft_for_display(final_draft)
+
+    except Exception as e:
+        return f"❌ Milestone 3 failed: {e}", ""
 
 
 # -----------------------------
@@ -415,6 +446,8 @@ with gr.Blocks(
             upload_btn = gr.Button("📤 Save Uploaded PDFs", visible=False)
 
             run_btn = gr.Button("⚙️ Run Analysis", variant="primary")
+            run_m3_btn = gr.Button("📝 Run Milestone 3", variant="secondary")
+
             overall_status = gr.Textbox(label="System Status", interactive=False)
 
         with gr.Column(scale=2):
@@ -435,6 +468,9 @@ with gr.Blocks(
 
             with gr.Tab("📝 Narrative Review"):
                 narrative_text = gr.Markdown(value="")
+
+            with gr.Tab("📘 Final Draft"):
+                final_draft_markdown = gr.Markdown(value="No final draft available.")
 
     mode.change(
         fn=toggle_mode,
@@ -463,7 +499,13 @@ with gr.Blocks(
     run_btn.click(
         fn=run_analysis_ui,
         inputs=[],
-        outputs=[overall_status, papers_table, findings_markdown, comparison_markdown, narrative_text]
+        outputs=[overall_status, papers_table, findings_markdown, comparison_markdown, narrative_text, final_draft_markdown]
+    )
+
+    run_m3_btn.click(
+        fn=run_milestone3_ui,
+        inputs=[],
+        outputs=[overall_status, final_draft_markdown]
     )
 
 demo.launch()
