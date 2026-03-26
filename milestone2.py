@@ -1,77 +1,148 @@
 import os
 import json
 
-from config import PDF_DIR, EXTRACTED_DIR
+from modules.search import search_papers
+from modules.downloader import is_pdf_accessible, download_pdf
+from modules.dataset import save_metadata
 from modules.extractor import extract_text_from_pdf
 from modules.section_parser import parse_sections
 from modules.findings import extract_key_findings
 from modules.comparer import compare_papers
-from modules.reviewer import generate_literature_review
+
+
+RAW_DIR = "data/raw_pdfs"
+EXTRACTED_DIR = "data/extracted"
+
+
+def get_local_pdfs(raw_dir):
+    if not os.path.exists(raw_dir):
+        return []
+    return [
+        os.path.join(raw_dir, f)
+        for f in os.listdir(raw_dir)
+        if f.lower().endswith(".pdf")
+    ]
 
 
 def run_milestone2():
+    topic = "Large Language Models security and inference efficiency"
+    paper_count = 2
+
+    os.makedirs(RAW_DIR, exist_ok=True)
     os.makedirs(EXTRACTED_DIR, exist_ok=True)
 
-    pdf_files = [f for f in os.listdir(PDF_DIR) if f.endswith(".pdf")]
-
-    if not pdf_files:
-        print("❌ No PDFs found in data/raw_pdfs/")
-        return
-
+    metadata = []
     all_sections = {}
     all_findings = {}
-    paper_titles = {}
 
-    for pdf_file in pdf_files:
+    # --------------------------------------------------
+    # STEP 1: Prefer already downloaded local PDFs
+    # --------------------------------------------------
+    pdf_paths = get_local_pdfs(RAW_DIR)
 
-        pdf_path = os.path.join(PDF_DIR, pdf_file)
-        print(f"\n📄 Processing: {pdf_file}")
+    if pdf_paths:
+        print(f"Using {len(pdf_paths)} local PDF(s) from {RAW_DIR}")
+    else:
+        print("No local PDFs found. Searching and downloading papers...")
 
-        text = extract_text_from_pdf(pdf_path)
+        papers = search_papers(topic, limit=paper_count)
+        print(f"Papers found: {len(papers)}")
 
-        if not text:
-            print("⚠️ No text extracted.")
-            continue
+        for paper in papers:
+            print("PAPER FOUND:", paper.get("title"))
 
-        # Parse sections
-        sections = parse_sections(text)
-        all_sections[pdf_file] = sections
+            pdf_info = paper.get("openAccessPdf", {})
+            pdf_url = pdf_info.get("url")
+            print("PDF URL:", pdf_url)
 
-        # Extract findings
-        findings = extract_key_findings(sections)
-        all_findings[pdf_file] = findings
+            if not pdf_url:
+                print("SKIPPED: No PDF URL")
+                continue
 
-        # Clean title (remove .pdf)
-        paper_titles[pdf_file] = pdf_file.replace(".pdf", "")
+            if not is_pdf_accessible(pdf_url):
+                print("SKIPPED: PDF not accessible")
+                continue
 
-    # Generate comparison
-    comparison = compare_papers(all_findings)
+            pdf_path = download_pdf(pdf_url, RAW_DIR)
+            print("DOWNLOADED PATH:", pdf_path)
 
-    # Generate literature review narrative
-    literature_review = generate_literature_review(all_findings, paper_titles)
+            if not pdf_path:
+                print("SKIPPED: Download failed")
+                continue
 
-    # Save sections
+            metadata.append(paper)
+            pdf_paths.append(pdf_path)
+
+    # --------------------------------------------------
+    # STEP 2: Process each PDF
+    # --------------------------------------------------
+    print(f"Total PDFs to process: {len(pdf_paths)}")
+
+    for pdf_path in pdf_paths:
+        pdf_name = os.path.basename(pdf_path)
+        print(f"\nProcessing: {pdf_name}")
+
+        try:
+            text = extract_text_from_pdf(pdf_path)
+            print("TEXT LENGTH:", len(text) if text else 0)
+
+            if not text or not text.strip():
+                print("SKIPPED: Empty extracted text")
+                continue
+
+            sections = parse_sections(text)
+            print("SECTION KEYS:", list(sections.keys()) if sections else [])
+
+            if not sections:
+                print("SKIPPED: No sections parsed")
+                continue
+
+            all_sections[pdf_name] = sections
+
+            findings = extract_key_findings(sections)
+            print("FINDINGS COUNT:", len(findings))
+            print("FINDINGS:", findings)
+
+            all_findings[pdf_name] = findings
+
+        except Exception as e:
+            print(f"ERROR processing {pdf_name}: {e}")
+
+    # --------------------------------------------------
+    # STEP 3: Save metadata
+    # --------------------------------------------------
+    try:
+        save_metadata(metadata)
+    except Exception as e:
+        print("Warning: save_metadata failed:", e)
+
+    # --------------------------------------------------
+    # STEP 4: Save sections
+    # --------------------------------------------------
     with open(os.path.join(EXTRACTED_DIR, "sections.json"), "w", encoding="utf-8") as f:
         json.dump(all_sections, f, indent=4, ensure_ascii=False)
 
-    # Save findings
+    # --------------------------------------------------
+    # STEP 5: Save findings
+    # --------------------------------------------------
     with open(os.path.join(EXTRACTED_DIR, "findings.json"), "w", encoding="utf-8") as f:
         json.dump(all_findings, f, indent=4, ensure_ascii=False)
 
-    # Save comparison
-    with open(os.path.join(EXTRACTED_DIR, "comparison.txt"), "w", encoding="utf-8") as f:
-        f.write(comparison)
+    print("\nALL FINDINGS:")
+    print(json.dumps(all_findings, indent=2, ensure_ascii=False))
 
-    # Save literature review
-    with open(os.path.join(EXTRACTED_DIR, "literature_review.txt"), "w", encoding="utf-8") as f:
-        f.write(literature_review)
+    # --------------------------------------------------
+    # STEP 6: Compare papers
+    # --------------------------------------------------
+    comparison = compare_papers(all_findings)
 
-    print("\n✅ Milestone 2 Completed Successfully!")
-    print("\n📁 Files Generated:")
-    print(" - sections.json")
-    print(" - findings.json")
-    print(" - comparison.txt")
-    print(" - literature_review.txt")
+    print("\nCOMPARISON OUTPUT:")
+    print(json.dumps(comparison, indent=4, ensure_ascii=False))
+
+    with open(os.path.join(EXTRACTED_DIR, "comparison.json"), "w", encoding="utf-8") as f:
+        json.dump(comparison, f, indent=4, ensure_ascii=False)
+
+    print("\nMilestone 2 completed successfully!")
 
 
 if __name__ == "__main__":

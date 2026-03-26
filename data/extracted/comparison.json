@@ -1,0 +1,48 @@
+{
+    "paper_summaries": {
+        "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf": {
+            "top_findings": [
+                "Experimental results show that edgesplit can adaptively determine the LLM partition and deployment strategy under various heterogeneous network conditions for optimizing inference performance.",
+                "We formulate a joint device selection and model partition problem to optimize inference latency and throughput, respectively, and solve it using dynamic programming algorithms.",
+                "Experiments also shows that EdgeShard outperforms the cloud-edge collaborative inference method when cloud bandwidth is insufficient and tends to yield the same deployment strategy as the cloudedge collaborative inference method when facing relatively abundant cloud bandwidth.",
+                "In this work, we propose EdgeShard to enable the efficient deployment and distributed inference of LLMs on collaborative edge devices and cloud servers.",
+                "As shown in the experiment, by partitioning the workload of LLM inference to multiple devices, the memory usage of participating devices can be reduced and thus allows for a larger batch size, leading to increased throughput."
+            ],
+            "top_themes": [
+                "method",
+                "results",
+                "evaluation"
+            ],
+            "numeric_claims": []
+        },
+        "929305892d4ddae575a0fc23227a8139f7681632.pdf": {
+            "top_findings": [
+                "In this paper, we hypothesize conceptual failure modes of LLM safety training and demonstrate that they yield principles for crafting effective jailbreak attacks.",
+                "We hypothesize two failure modes of safety training: competing objectives and mismatched generalization.",
+                "We use these failure modes to guide jailbreak design and then evaluate state-of-the-art models, including OpenAI’s GPT-4 and Anthropic’s Claude v1.3, against both existing and newly designed attacks.",
+                "Notably, new attacks utilizing our failure modes succeed on every prompt in a collection of unsafe requests from the models’ red-teaming evaluation sets and outperform existing ad hoc jailbreaks.",
+                "Our analysis emphasizes the need for safety-capability parity—that safety mechanisms should be as sophisticated as the underlying model—and argues against the idea that scaling alone can resolve these safety failure modes."
+            ],
+            "top_themes": [
+                "safety",
+                "evaluation",
+                "method"
+            ],
+            "numeric_claims": []
+        }
+    },
+    "common_themes": [
+        "safety"
+    ],
+    "theme_distribution": {
+        "method": 8,
+        "results": 7,
+        "evaluation": 6,
+        "safety": 5
+    },
+    "cross_paper_observations": [
+        "Common domain-specific themes across papers: safety.",
+        "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf mainly focuses on method, results, evaluation.",
+        "929305892d4ddae575a0fc23227a8139f7681632.pdf mainly focuses on safety, evaluation, method."
+    ]
+}

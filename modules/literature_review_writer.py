@@ -8,22 +8,21 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL_NAME = "gemini-2.5-flash"
 
 
-def generate_abstract(findings_path, comparison_path):
+def generate_literature_review(findings_path, comparison_path):
     context = build_writer_context(findings_path, comparison_path)
 
     prompt = f"""
-You are writing the abstract section of a literature review draft.
+You are writing a short literature review section.
 
 Use ONLY the structured findings and comparison provided below.
-Do not invent datasets, results, claims, or paper details not present in the input.
+Do not invent new papers, claims, datasets, or metrics.
 
-Write one academic abstract in 120 to 150 words.
-The abstract should:
-- state the overall topic of the selected papers
-- summarize the major contributions/findings
-- briefly mention the comparison perspective across papers
+Write 2 concise academic paragraphs that:
+- synthesize the selected papers
+- compare their focus areas and findings
+- present a coherent literature review narrative
 
-Return only the abstract paragraph.
+Return only the review text.
 
 INPUT:
 {context}

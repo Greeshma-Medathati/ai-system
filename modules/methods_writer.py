@@ -1,57 +1,36 @@
 import os
 from dotenv import load_dotenv
 from google import genai
+from modules.writer_input import build_writer_context
 
 load_dotenv()
-
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL_NAME = "gemini-2.5-flash"
 
 
-def generate_methods_comparison(all_sections: dict, paper_titles: dict):
-    methods_input = ""
-
-    for pdf_file, sections in all_sections.items():
-        title = paper_titles.get(pdf_file, pdf_file).replace(".pdf", "")
-        methods_text = sections.get("methods", "")[:4000]
-
-        if not methods_text:
-            continue
-
-        methods_input += f"\nPAPER TITLE: {title}\n"
-        methods_input += f"METHODS:\n{methods_text[:6000]}\n"
-
-    if not methods_input.strip():
-        return "No methods sections available for comparison."
+def generate_methods_comparison(findings_path, comparison_path):
+    context = build_writer_context(findings_path, comparison_path)
 
     prompt = f"""
-You are writing the METHODS COMPARISON section of a literature review.
+You are writing the methodology comparison section of a literature review draft.
 
-You are given methods from multiple research papers.
+Use ONLY the structured findings and comparison provided below.
+Do not add assumptions beyond the input.
 
-Your task:
-- Compare the methods used across papers (NOT describe one paper only)
-- Clearly identify:
-  1. What each paper focuses on (e.g., system design vs experimental evaluation)
-  2. Key methodological differences
-  3. Any similarities or shared approaches
-- Highlight contrasts between approaches
+Write one concise academic paragraph.
+Focus on:
+- the methods, frameworks, or approaches used in the papers
+- how the papers differ in technical focus
+- any notable contrast in system design or problem framing
 
-Rules:
-- Write in 1–2 well-structured paragraphs
-- Do NOT use bullet points
-- Do NOT describe papers separately one by one
-- Use comparative language like:
-  "In contrast", "While one approach...", "Both papers..."
-- Keep it concise and academic
+Return only the paragraph.
 
 INPUT:
-{methods_input}
+{context}
 """
 
     response = client.models.generate_content(
         model=MODEL_NAME,
         contents=prompt
     )
-
-    return (response.text or "").strip()
+    return response.text.strip()

@@ -1,2 +1,2 @@
-EdgeShard: Efficient LLM Inference via Collaborative Edge Computing. (2025).
-Jailbroken: How Does LLM Safety Training Fail?. (2023).
+Unknown Author (n.d.). 007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.
+Unknown Author (n.d.). 929305892d4ddae575a0fc23227a8139f7681632.

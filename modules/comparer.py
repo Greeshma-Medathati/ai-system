@@ -1,51 +1,126 @@
-import os
-from dotenv import load_dotenv
-from google import genai
+import re
+from collections import Counter
 
-load_dotenv()
+print("NEW COMPARER LOADED")
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-MODEL_NAME = "gemini-2.5-flash"
+THEME_KEYWORDS = {
+    "method": [
+        "framework", "method", "approach", "model", "algorithm",
+        "dynamic programming", "partition", "deployment", "design"
+    ],
+    "results": [
+        "accuracy", "performance", "outperform", "improve", "throughput",
+        "latency", "reduction", "increase", "score", "effective", "efficient"
+    ],
+    "safety": [
+        "safety", "jailbreak", "attack", "vulnerable", "failure mode",
+        "generalization", "competing objectives", "mismatched generalization"
+    ],
+    "evaluation": [
+        "experiment", "evaluate", "evaluation", "benchmark", "dataset",
+        "results show", "demonstrate"
+    ]
+}
+
+# These are useful for per-paper summary,
+# but too generic to be treated as meaningful cross-paper overlap.
+GENERIC_THEMES = {"method", "results", "evaluation"}
 
 
-def compare_papers(all_findings: dict):
-    comparison_input = ""
+def normalize(text):
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9\s]', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
-    for paper_title, findings in all_findings.items():
-        comparison_input += f"\nPAPER: {paper_title}\n"
-        if findings:
-            for finding in findings:
-                comparison_input += f"- {finding}\n"
-        else:
-            comparison_input += "- No findings extracted\n"
 
-    prompt = f"""
-You are comparing multiple research papers.
+def detect_themes(finding):
+    s = normalize(finding)
+    matched = []
+    for theme, keywords in THEME_KEYWORDS.items():
+        if any(kw in s for kw in keywords):
+            matched.append(theme)
+    return matched
 
-Using only the findings below, identify:
-1. Common themes
-2. Major differences
-3. Overlapping conclusions
 
-Return the answer in clear bullet points under these exact headings:
-Common Themes:
-Major Differences:
-Overlapping Conclusions:
+def extract_numbers(text):
+    # only capture percentages or decimal-style metrics,
+    # avoid pulling numbers from names like GPT-4 where possible
+    percent_matches = re.findall(r'\b\d+(?:\.\d+)?%\b', text)
+    decimal_matches = re.findall(r'(?<![A-Za-z-])\b\d+\.\d+\b', text)
 
-Do not ask for more input.
-Do not say that findings are missing unless every paper has no findings.
+    numbers = percent_matches + decimal_matches
+    return list(dict.fromkeys(numbers))  # remove duplicates, keep order
 
-FINDINGS:
-{comparison_input}
-"""
 
-    try:
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt
+def compare_papers(paper_findings):
+    print("INPUT TO COMPARER:", paper_findings)
+
+    paper_summaries = {}
+    global_theme_counter = Counter()
+    observation_lines = []
+
+    for paper_name, findings in paper_findings.items():
+        themes = Counter()
+        numeric_claims = []
+        cleaned_findings = []
+
+        for finding in findings:
+            finding = finding.strip()
+            if not finding:
+                continue
+
+            cleaned_findings.append(finding)
+
+            found_themes = detect_themes(finding)
+            for t in found_themes:
+                themes[t] += 1
+                global_theme_counter[t] += 1
+
+            nums = extract_numbers(finding)
+            if nums:
+                numeric_claims.append({
+                    "finding": finding,
+                    "numbers": nums
+                })
+
+        top_themes = [theme for theme, _ in themes.most_common(3)]
+
+        paper_summaries[paper_name] = {
+            "top_findings": cleaned_findings[:5],
+            "top_themes": top_themes,
+            "numeric_claims": numeric_claims
+        }
+
+    # Only keep meaningful domain-specific overlaps
+    common_themes = [
+        theme for theme, count in global_theme_counter.items()
+        if count >= 2 and theme not in GENERIC_THEMES
+    ]
+
+    if common_themes:
+        observation_lines.append(
+            "Common domain-specific themes across papers: " + ", ".join(common_themes) + "."
         )
-        return (response.text or "").strip()
+    else:
+        observation_lines.append(
+            "No strong domain-specific common themes were found across the selected papers."
+        )
 
-    except Exception as e:
-        print(f"❌ Error comparing papers: {e}")
-        return ""
+    for paper_name, summary in paper_summaries.items():
+        if summary["top_themes"]:
+            observation_lines.append(
+                f"{paper_name} mainly focuses on " + ", ".join(summary["top_themes"]) + "."
+            )
+
+        if summary["numeric_claims"]:
+            observation_lines.append(
+                f"{paper_name} includes measurable numeric or percentage-based claims."
+            )
+
+    return {
+        "paper_summaries": paper_summaries,
+        "common_themes": common_themes,
+        "theme_distribution": dict(global_theme_counter),
+        "cross_paper_observations": observation_lines
+    }

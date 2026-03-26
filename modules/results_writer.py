@@ -1,70 +1,36 @@
 import os
 from dotenv import load_dotenv
 from google import genai
+from modules.writer_input import build_writer_context
 
 load_dotenv()
-
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODEL_NAME = "gemini-2.5-flash"
 
 
-def generate_results_synthesis(all_sections: dict, all_findings: dict, paper_titles: dict):
-    synthesis_input = ""
-
-    for pdf_file, sections in all_sections.items():
-        title = paper_titles.get(pdf_file, pdf_file).replace(".pdf", "")
-
-        results_text = sections.get("results", "").strip()
-        discussion_text = sections.get("discussion", "").strip()
-        conclusion_text = sections.get("conclusion", "").strip()
-        findings = all_findings.get(pdf_file, [])
-
-        synthesis_input += f"\nPAPER TITLE: {title}\n"
-
-        if findings:
-            synthesis_input += "KEY FINDINGS:\n"
-            for finding in findings:
-                synthesis_input += f"- {finding}\n"
-
-        combined = "\n".join([
-            results_text[:3000],
-            discussion_text[:2000],
-            conclusion_text[:2000]
-        ]).strip()
-
-        if combined:
-            synthesis_input += f"RESULT-RELATED TEXT:\n{combined}\n"
-
-    if not synthesis_input.strip():
-        return "No result-related content available."
+def generate_results_synthesis(findings_path, comparison_path):
+    context = build_writer_context(findings_path, comparison_path)
 
     prompt = f"""
-You are writing the RESULTS SYNTHESIS section of a literature review.
+You are writing the results synthesis section of a literature review draft.
 
-You are given extracted findings and result-related content from multiple papers.
+Use ONLY the structured findings and comparison provided below.
+Do not invent metrics, scores, or outcomes that are not explicitly supported by the input.
 
-Your task:
-- Combine results across papers into a unified explanation
-- Identify:
-  1. Key outcomes from each paper
-  2. Common trends across papers
-  3. Major differences in results
-- Show how the papers relate to each other
+Write one concise academic paragraph.
+Focus on:
+- the major outcomes or findings across the papers
+- notable differences in effectiveness, conclusions, or observed behavior
+- any high-level synthesis of the results
 
-Rules:
-- Write in 2 concise paragraphs
-- Do NOT list results paper-by-paper
-- Do NOT use bullet points
-- Focus on synthesis, not repetition
-- Maintain academic tone
+Return only the paragraph.
 
 INPUT:
-{synthesis_input}
+{context}
 """
 
     response = client.models.generate_content(
         model=MODEL_NAME,
         contents=prompt
     )
-
-    return (response.text or "").strip()
+    return response.text.strip()

@@ -1,13 +1,11 @@
-import json
 import os
-from config import METADATA_DIR
 
 
 def format_authors_apa(authors):
     if not authors:
-        return ""
+        return "Unknown Author"
 
-    formatted = []
+    names = []
     for author in authors:
         name = author.get("name", "").strip()
         if not name:
@@ -15,36 +13,54 @@ def format_authors_apa(authors):
 
         parts = name.split()
         if len(parts) == 1:
-            formatted.append(parts[0])
+            names.append(parts[0])
         else:
-            last = parts[-1]
-            initials = " ".join([p[0].upper() + "." for p in parts[:-1] if p])
-            formatted.append(f"{last}, {initials}")
+            last_name = parts[-1]
+            initials = " ".join([p[0] + "." for p in parts[:-1] if p])
+            names.append(f"{last_name}, {initials}")
 
-    if len(formatted) == 1:
-        return formatted[0]
-    if len(formatted) == 2:
-        return f"{formatted[0]} & {formatted[1]}"
-    return ", ".join(formatted[:-1]) + f", & {formatted[-1]}"
+    if not names:
+        return "Unknown Author"
 
-
-def format_reference_apa(paper):
-    authors = format_authors_apa(paper.get("authors", []))
-    year = paper.get("year", "n.d.")
-    title = paper.get("title", "Untitled").strip()
-
-    if authors:
-        return f"{authors} ({year}). {title}."
-    return f"{title}. ({year})."
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f"{names[0]} & {names[1]}"
+    return ", ".join(names[:-1]) + f", & {names[-1]}"
 
 
-def generate_references():
-    metadata_path = os.path.join(METADATA_DIR, "papers.json")
-    if not os.path.exists(metadata_path):
-        return []
+def generate_references(papers=None, findings=None):
+    refs = []
 
-    with open(metadata_path, "r", encoding="utf-8") as f:
-        papers = json.load(f)
+    # Case 1: metadata available
+    if papers:
+        for p in papers:
+            title = p.get("title", "Unknown Title").strip()
+            authors = p.get("authors", [])
+            year = p.get("year", "n.d.")
+            venue = p.get("venue", "").strip()
+            url = ""
 
-    references = [format_reference_apa(p) for p in papers]
-    return references
+            open_access = p.get("openAccessPdf", {})
+            if isinstance(open_access, dict):
+                url = open_access.get("url", "").strip()
+
+            author_text = format_authors_apa(authors)
+
+            ref = f"{author_text} ({year}). {title}."
+            if venue:
+                ref += f" {venue}."
+            if url:
+                ref += f" {url}"
+
+            refs.append(ref)
+
+        return refs
+
+    # Case 2: fallback from findings file names
+    if findings:
+        for pdf_name in findings.keys():
+            title = os.path.splitext(pdf_name)[0]
+            refs.append(f"Unknown Author (n.d.). {title}.")
+
+    return refs

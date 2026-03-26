@@ -1,15 +1,16 @@
 {
     "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf": [
-        "Existing LLMs heavily rely on cloud computing, leading to long response times, high bandwidth costs, and significant privacy concerns, especially for real-time and sensitive applications.",
-        "Edge computing is a promising solution but faces challenges due to LLMs' computation-intensive and resource-greedy nature (e.g., Llama2-7B requires 28GB memory, exceeding most edge device capacities).",
-        "Collaborative Edge Computing (CEC) is proposed to address these issues by integrating resources from geo-distributed edge devices and cloud servers, enabling efficient LLM inference.",
-        "EdgeShard is a novel framework for collaborative LLM inference on heterogeneous edge devices and cloud servers, which partitions LLMs into shards and allocates them to devices to optimize latency and throughput.",
-        "Experimental results show EdgeShard significantly outperforms baseline methods, reducing latency by up to 50% and achieving 2x throughput compared to on-device and vertical cloud-edge collaborative inference."
+        "Experimental results show that edgesplit can adaptively determine the LLM partition and deployment strategy under various heterogeneous network conditions for optimizing inference performance.",
+        "We formulate a joint device selection and model partition problem to optimize inference latency and throughput, respectively, and solve it using dynamic programming algorithms.",
+        "Experiments also shows that EdgeShard outperforms the cloud-edge collaborative inference method when cloud bandwidth is insufficient and tends to yield the same deployment strategy as the cloudedge collaborative inference method when facing relatively abundant cloud bandwidth.",
+        "In this work, we propose EdgeShard to enable the efficient deployment and distributed inference of LLMs on collaborative edge devices and cloud servers.",
+        "As shown in the experiment, by partitioning the workload of LLM inference to multiple devices, the memory usage of participating devices can be reduced and thus allows for a larger batch size, leading to increased throughput."
     ],
     "929305892d4ddae575a0fc23227a8139f7681632.pdf": [
-        "State-of-the-art LLMs (GPT-4, Claude v1.3) remain vulnerable to jailbreak attacks despite extensive red-teaming and safety training efforts.",
-        "Two primary failure modes, \"competing objectives\" and \"mismatched generalization,\" explain why safety training fails and guide the design of new, effective attacks.",
-        "New attacks leveraging these failure modes significantly outperform existing ad hoc jailbreaks, succeeding on 100% of curated red-teaming prompts and over 96% of evaluated prompts.",
-        "Jailbreaks are inherent to current safety training methods, suggesting that scaling alone will not resolve these vulnerabilities; safety mechanisms require parity with the underlying model's capabilities."
+        "In this paper, we hypothesize conceptual failure modes of LLM safety training and demonstrate that they yield principles for crafting effective jailbreak attacks.",
+        "We hypothesize two failure modes of safety training: competing objectives and mismatched generalization.",
+        "We use these failure modes to guide jailbreak design and then evaluate state-of-the-art models, including OpenAI’s GPT-4 and Anthropic’s Claude v1.3, against both existing and newly designed attacks.",
+        "Notably, new attacks utilizing our failure modes succeed on every prompt in a collection of unsafe requests from the models’ red-teaming evaluation sets and outperform existing ad hoc jailbreaks.",
+        "Our analysis emphasizes the need for safety-capability parity—that safety mechanisms should be as sophisticated as the underlying model—and argues against the idea that scaling alone can resolve these safety failure modes."
     ]
 }
