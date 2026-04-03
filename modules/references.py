@@ -32,14 +32,16 @@ def format_authors_apa(authors):
 def generate_references(papers=None, findings=None):
     refs = []
 
-    # Case 1: metadata available
     if papers:
         for p in papers:
             title = p.get("title", "Unknown Title").strip()
             authors = p.get("authors", [])
-            year = p.get("year", "n.d.")
+            year = p.get("year")
             venue = p.get("venue", "").strip()
             url = ""
+
+            if not year:
+                year = "n.d."
 
             open_access = p.get("openAccessPdf", {})
             if isinstance(open_access, dict):
@@ -57,7 +59,6 @@ def generate_references(papers=None, findings=None):
 
         return refs
 
-    # Case 2: fallback from findings file names
     if findings:
         for pdf_name in findings.keys():
             title = os.path.splitext(pdf_name)[0]

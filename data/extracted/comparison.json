@@ -1,48 +1,67 @@
 {
     "paper_summaries": {
-        "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf": {
+        "3936fd3c6187f606c6e4e2e20b196dbc41cc4654.pdf": {
             "top_findings": [
-                "Experimental results show that edgesplit can adaptively determine the LLM partition and deployment strategy under various heterogeneous network conditions for optimizing inference performance.",
-                "We formulate a joint device selection and model partition problem to optimize inference latency and throughput, respectively, and solve it using dynamic programming algorithms.",
-                "Experiments also shows that EdgeShard outperforms the cloud-edge collaborative inference method when cloud bandwidth is insufficient and tends to yield the same deployment strategy as the cloudedge collaborative inference method when facing relatively abundant cloud bandwidth.",
-                "In this work, we propose EdgeShard to enable the efficient deployment and distributed inference of LLMs on collaborative edge devices and cloud servers.",
-                "As shown in the experiment, by partitioning the workload of LLM inference to multiple devices, the memory usage of participating devices can be reduced and thus allows for a larger batch size, leading to increased throughput."
+                "We find that harmlessness and HH scores improve monotonically with respect to number of revisions, where revision 0 refers to the initial response, but pure helpfulness scores decrease.",
+                "The RL stage significantly improves performance and reliability.",
+                "## **3.4 Scaling Trends** Here we show results on the way preference model scores depend on the number of principles in the constitution and the number of revisions.",
+                "We experiment with methods for training a harmless AI assistant through selfimprovement, without any human labels identifying harmful outputs.",
+                "Both the SL and RL methods can leverage chain-of-thought style reasoning to improve the human-judged performance and transparency of AI decision making."
             ],
             "top_themes": [
-                "method",
                 "results",
+                "method",
                 "evaluation"
+            ],
+            "numeric_claims": [
+                {
+                    "finding": "## **3.4 Scaling Trends** Here we show results on the way preference model scores depend on the number of principles in the constitution and the number of revisions.",
+                    "numbers": [
+                        "3.4"
+                    ]
+                }
+            ]
+        },
+        "530a059cb48477ad1e3d4f8f4b153274c8997332.pdf": {
+            "top_findings": [
+                "Departing from this definition, we propose and discuss about a taxonomy of recent contributions related to the explainability of different Machine Learning models, including those aimed at explaining Deep Learning methods for which a second dedicated taxonomy is built and examined in detail.",
+                "Our prospects lead toward the concept of _Responsible Artificial Intelligence_ , namely, a methodology for the large-scale implementation of AI methods in real organizations with fairness, model explainability and accountability at its core.",
+                "For this to occur shortly in Machine Learning, the entire community stands in front of the barrier of explainability, an inherent problem of the latest techniques brought by sub-symbolism (e.g.",
+                "ensembles or Deep Neural Networks) that were not present in the last hype of AI (namely, expert systems and rule based models).",
+                "Paradigms underlying this problem fall within the so-called _eXplainable_ AI (XAI) field, which is widely acknowledged as a crucial feature for the practical deployment of AI models."
+            ],
+            "top_themes": [
+                "method"
             ],
             "numeric_claims": []
         },
-        "929305892d4ddae575a0fc23227a8139f7681632.pdf": {
+        "6a132499ca1dc0d23cfe7d5db841b819df63b51b.pdf": {
             "top_findings": [
-                "In this paper, we hypothesize conceptual failure modes of LLM safety training and demonstrate that they yield principles for crafting effective jailbreak attacks.",
-                "We hypothesize two failure modes of safety training: competing objectives and mismatched generalization.",
-                "We use these failure modes to guide jailbreak design and then evaluate state-of-the-art models, including OpenAI’s GPT-4 and Anthropic’s Claude v1.3, against both existing and newly designed attacks.",
-                "Notably, new attacks utilizing our failure modes succeed on every prompt in a collection of unsafe requests from the models’ red-teaming evaluation sets and outperform existing ad hoc jailbreaks.",
-                "Our analysis emphasizes the need for safety-capability parity—that safety mechanisms should be as sophisticated as the underlying model—and argues against the idea that scaling alone can resolve these safety failure modes."
+                "AI technology improves the quality of| |Life below water<br>Life on land|understanding and responding to climate impacts and could end up being a vitally important part of assuring and promoting<br>economic development amongst the world's least well of (Brookings Institute, 2019).",
+                "However, al­ though this vision of a society that benefits from the onset of AI is realistic, the short to medium term transition may negatively impact many vulnerable aspects of society.",
+                "Studies have highlighted that organisations face significant issues where the lack of an effective strategy for human vs AI interaction could affect critical business areas and fail to address concerns from the human workforce (Fry, 2018; Sun & Medaglia, 2019).",
+                "AI can help or­ ganisations to develop operational and strategic awareness but in­ formation quality is a critical component (Westerman et al., 2014) for effective change.",
+                "Researchers have sup­ ported the need for AI technologies to augment not replace the work of humans, to support key tasks and deliver greater levels of performance (Davenport & Kirby, 2016; Wang, Törngren, & Onori, 2015a; Wang, Li, & Leung, 2015b)."
             ],
             "top_themes": [
-                "safety",
-                "evaluation",
-                "method"
+                "results",
+                "safety"
             ],
             "numeric_claims": []
         }
     },
-    "common_themes": [
-        "safety"
-    ],
+    "common_themes": [],
     "theme_distribution": {
-        "method": 8,
-        "results": 7,
-        "evaluation": 6,
-        "safety": 5
+        "results": 9,
+        "method": 7,
+        "evaluation": 1,
+        "safety": 1
     },
     "cross_paper_observations": [
-        "Common domain-specific themes across papers: safety.",
-        "007e7d6cb64a7dfcdcad9fc6f4f0ba69fdc88203.pdf mainly focuses on method, results, evaluation.",
-        "929305892d4ddae575a0fc23227a8139f7681632.pdf mainly focuses on safety, evaluation, method."
+        "No strong domain-specific common themes were found across the selected papers.",
+        "3936fd3c6187f606c6e4e2e20b196dbc41cc4654.pdf mainly focuses on results, method, evaluation.",
+        "3936fd3c6187f606c6e4e2e20b196dbc41cc4654.pdf includes measurable numeric or percentage-based claims.",
+        "530a059cb48477ad1e3d4f8f4b153274c8997332.pdf mainly focuses on method.",
+        "6a132499ca1dc0d23cfe7d5db841b819df63b51b.pdf mainly focuses on results, safety."
     ]
 }
