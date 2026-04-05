@@ -1,16 +1,16 @@
 {
-    "487b787e6ca2368aff7941c86e39941db83c5087.pdf": [
-        "**1.1 Authority** The National Institute of Standards and Technology (NIST) developed this document in furtherance of its statutory responsibilities under the Federal Information Security Management Act (FISMA) of 2002, Public Law 107-347.",
-        "The cloud infrastructure is provisioned for exclusive use by a specific community of consumers from organizations that have shared concerns (e.g., mission, security requirements, policy, and compliance considerations).",
-        "This guideline is consistent with the requirements of the Office of Management and Budget (OMB) Circular A-130, Section 8b(3), “Securing Agency Information Systems,” as analyzed in A-130, Appendix IV: Analysis of Key Sections.",
-        "1.3 Audience** The intended audience of this document is system planners, program managers, technologists, and others adopting cloud computing as consumers or providers of cloud services.",
-        "The capability provided to the consumer is to deploy onto the cloud infrastructure consumer-created or acquired applications created using programming > 1 Typically this is done on a pay-per-use or charge-per-use basis."
+    "3936fd3c6187f606c6e4e2e20b196dbc41cc4654.pdf": [
+        "We suspect this is because for this work we instructed crowdworkers to prefer thoughtfully harmless responses over evasively harmless responses, which likely reduced the scores for HH RLHF and improved the scores for helpful RLHF.",
+        "Instead we found that clamping the probabilities at 20-80 percent slightly improved results, while clamping at 40-60 improved results further.",
+        "2022] showed that RLHF significantly improves the models’ ability to follow instructions, and the HH model is significantly more harmless than the helpful model. **",
+        "Subsequent revisions sometimes improved results further, but it was less obvious by inspection.",
+        "Another remaining issue, and a major motivation for this work, is robustness —that is, can we make models essentially immune to red-team attacks?"
     ],
-    "fcc0eb6ff52827a121673280ea34f870d0c93b54.pdf": [
-        "The rationality behind PPGs are that most applications that deal with point cloud processing can be formulated as a concrete set of building blocks that are parameterized to achieve different results.",
-        "Left: the 3D Cartesian space represents XYZ data, with the arrows representing surface normals estimated at each point in the cloud, right: the Cartesian space represents the 3 dimensions of the normal vector at each point for the same dataset. **",
-        "The second example constitutes a segmentation operation for planar surfaces, using a RANSAC model, as shown in Algorithm 3.",
-        "Its purpose is to be able to quickly prototype and visualize the results of algorithms operating on such hyper-dimensional data.",
-        "The results of these methods were then used to extract certain statistics about the shape and size of the door and the handle, in order to uniquely identify them and to reject false positives."
+    "530a059cb48477ad1e3d4f8f4b153274c8997332.pdf": [
+        "The use of background knowledge in the form of logical statements or constraints in Knowledge Bases (KBs) has shown to not only improve explainability but also performance with respect to purely data-driven approaches .",
+        "The proposal then includes an algorithm that both generates explanations and reduces bias, as it is demonstrated for the use case of recidivism using the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) dataset .",
+        "The aforementioned examples from the EC shows how data fusion is directly intertwined with privacy and with fairness, regardless of the technique employed for it.",
+        "In order to analyse the visual information contained inside the CNN, the authors proposed a general framework that reconstruct an image from the CNN internal representations and showed that several layers retain photographically accurate information about the image, with different degrees of geometric and photometric invariance.",
+        "These metrics, as the classic ones (accuracy, F1, sensitivity...), should express how well the model performs in a certain aspect of explainability."
     ]
 }

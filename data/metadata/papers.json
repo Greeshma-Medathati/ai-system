@@ -1,52 +1,286 @@
 [
     {
-        "paperId": "487b787e6ca2368aff7941c86e39941db83c5087",
-        "title": "The NIST Definition of Cloud Computing",
+        "paperId": "3936fd3c6187f606c6e4e2e20b196dbc41cc4654",
+        "title": "Constitutional AI: Harmlessness from AI Feedback",
         "authors": [
             {
-                "authorId": "152956203",
-                "name": "P. Mell"
+                "authorId": "1486307451",
+                "name": "Yuntao Bai"
             },
             {
-                "authorId": "46190295",
-                "name": "T. Grance"
+                "authorId": "148070327",
+                "name": "Saurav Kadavath"
+            },
+            {
+                "authorId": "2158813858",
+                "name": "Sandipan Kundu"
+            },
+            {
+                "authorId": "119609682",
+                "name": "Amanda Askell"
+            },
+            {
+                "authorId": "1583434563",
+                "name": "John Kernion"
+            },
+            {
+                "authorId": "2149890773",
+                "name": "Andy Jones"
+            },
+            {
+                "authorId": "2111074159",
+                "name": "A. Chen"
+            },
+            {
+                "authorId": "46684455",
+                "name": "Anna Goldie"
+            },
+            {
+                "authorId": "1861312",
+                "name": "Azalia Mirhoseini"
+            },
+            {
+                "authorId": "2190108315",
+                "name": "C. McKinnon"
+            },
+            {
+                "authorId": "2183729976",
+                "name": "Carol Chen"
+            },
+            {
+                "authorId": "2061321863",
+                "name": "Catherine Olsson"
+            },
+            {
+                "authorId": "2287268442",
+                "name": "Chris Olah"
+            },
+            {
+                "authorId": "39182747",
+                "name": "Danny Hernandez"
+            },
+            {
+                "authorId": "1943097969",
+                "name": "Dawn Drain"
+            },
+            {
+                "authorId": "2081806483",
+                "name": "Deep Ganguli"
+            },
+            {
+                "authorId": "2108506462",
+                "name": "Dustin Li"
+            },
+            {
+                "authorId": "2175781319",
+                "name": "Eli Tran-Johnson"
+            },
+            {
+                "authorId": "47635264",
+                "name": "E. Perez"
+            },
+            {
+                "authorId": "2067765208",
+                "name": "Jamie Kerr"
+            },
+            {
+                "authorId": "2190111475",
+                "name": "J. Mueller"
+            },
+            {
+                "authorId": "70988670",
+                "name": "Jeffrey Ladish"
+            },
+            {
+                "authorId": "2068044809",
+                "name": "J. Landau"
+            },
+            {
+                "authorId": "1978097132",
+                "name": "Kamal Ndousse"
+            },
+            {
+                "authorId": "2105347564",
+                "name": "Kamilė Lukošiūtė"
+            },
+            {
+                "authorId": "2154608229",
+                "name": "Liane Lovitt"
+            },
+            {
+                "authorId": "2054578129",
+                "name": "M. Sellitto"
+            },
+            {
+                "authorId": "2866708",
+                "name": "Nelson Elhage"
+            },
+            {
+                "authorId": "2833768",
+                "name": "Nicholas Schiefer"
+            },
+            {
+                "authorId": "2190107517",
+                "name": "Noem'i Mercado"
+            },
+            {
+                "authorId": "2142833890",
+                "name": "Nova Dassarma"
+            },
+            {
+                "authorId": "3112577",
+                "name": "R. Lasenby"
+            },
+            {
+                "authorId": "48810415",
+                "name": "Robin Larson"
+            },
+            {
+                "authorId": "1380664820",
+                "name": "Sam Ringer"
+            },
+            {
+                "authorId": "2154610174",
+                "name": "Scott Johnston"
+            },
+            {
+                "authorId": "49604482",
+                "name": "Shauna Kravec"
+            },
+            {
+                "authorId": "2154609053",
+                "name": "S. E. Showk"
+            },
+            {
+                "authorId": "30176974",
+                "name": "Stanislav Fort"
+            },
+            {
+                "authorId": "46239941",
+                "name": "Tamera Lanham"
+            },
+            {
+                "authorId": "1419532638",
+                "name": "Timothy Telleen-Lawton"
+            },
+            {
+                "authorId": "2154608209",
+                "name": "Tom Conerly"
+            },
+            {
+                "authorId": "103143311",
+                "name": "T. Henighan"
+            },
+            {
+                "authorId": "2162194147",
+                "name": "Tristan Hume"
+            },
+            {
+                "authorId": "1799822",
+                "name": "Sam Bowman"
+            },
+            {
+                "authorId": "1573482302",
+                "name": "Zac Hatfield-Dodds"
+            },
+            {
+                "authorId": "2056658938",
+                "name": "Benjamin Mann"
+            },
+            {
+                "authorId": "2698777",
+                "name": "Dario Amodei"
+            },
+            {
+                "authorId": "2117706920",
+                "name": "Nicholas Joseph"
+            },
+            {
+                "authorId": "52238703",
+                "name": "Sam McCandlish"
+            },
+            {
+                "authorId": "31035595",
+                "name": "Tom B. Brown"
+            },
+            {
+                "authorId": "2053807409",
+                "name": "Jared Kaplan"
             }
         ],
-        "year": 2011,
-        "venue": "",
+        "year": 2022,
+        "venue": "arXiv.org",
         "openAccessPdf": {
-            "url": "https://doi.org/10.6028/nist.sp.800-145",
-            "status": "BRONZE",
-            "license": null,
-            "disclaimer": "Notice: The following paper fields have been elided by the publisher: {'abstract'}. Paper or abstract available at https://api.unpaywall.org/v2/10.6028/NIST.SP.800-145?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.6028/NIST.SP.800-145, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            "url": "http://arxiv.org/pdf/2212.08073",
+            "status": "GREEN",
+            "license": null
         },
-        "citationCount": 14997,
-        "localPdfPath": "data/raw_pdfs\\487b787e6ca2368aff7941c86e39941db83c5087.pdf",
-        "titleSource": "old"
+        "citationCount": 2682,
+        "localPdfPath": "data/raw_pdfs\\3936fd3c6187f606c6e4e2e20b196dbc41cc4654.pdf",
+        "titleSource": "api"
     },
     {
-        "paperId": "fcc0eb6ff52827a121673280ea34f870d0c93b54",
-        "title": "3D is here: Point Cloud Library (PCL)",
+        "paperId": "530a059cb48477ad1e3d4f8f4b153274c8997332",
+        "title": "Explainable Artificial Intelligence (XAI): Concepts, Taxonomies, Opportunities and Challenges toward Responsible AI",
         "authors": [
             {
-                "authorId": "2689311",
-                "name": "R. Rusu"
+                "authorId": "1379511816",
+                "name": "Alejandro Barredo Arrieta"
             },
             {
-                "authorId": "2070002084",
-                "name": "S. Cousins"
+                "authorId": "2058921025",
+                "name": "Natalia Díaz Rodríguez"
+            },
+            {
+                "authorId": "9221552",
+                "name": "J. Ser"
+            },
+            {
+                "authorId": "1379511786",
+                "name": "Adrien Bennetot"
+            },
+            {
+                "authorId": "3030006",
+                "name": "S. Tabik"
+            },
+            {
+                "authorId": "50449165",
+                "name": "A. Barbado"
+            },
+            {
+                "authorId": "39558258",
+                "name": "S. García"
+            },
+            {
+                "authorId": "1402195255",
+                "name": "S. Gil-Lopez"
+            },
+            {
+                "authorId": "145337392",
+                "name": "D. Molina"
+            },
+            {
+                "authorId": "2445552",
+                "name": "Richard Benjamins"
+            },
+            {
+                "authorId": "2091924780",
+                "name": "Raja Chatila"
+            },
+            {
+                "authorId": "2098723448",
+                "name": "Francisco Herrera"
             }
         ],
-        "year": 2011,
-        "venue": "",
+        "year": 2019,
+        "venue": "Information Fusion",
         "openAccessPdf": {
-            "url": "http://www.pointclouds.org/assets/pdf/pcl_icra2011.pdf",
+            "url": "https://bird.bcamath.org/bitstream/20.500.11824/1166/1/24.%20main.pdf",
             "status": "GREEN",
-            "license": null,
-            "disclaimer": "Notice: The following paper fields have been elided by the publisher: {'abstract'}. Paper or abstract available at https://api.unpaywall.org/v2/10.1109/ICRA.2011.5980567?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1109/ICRA.2011.5980567, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
+            "license": "CCBYNCSA"
         },
-        "citationCount": 5271,
-        "localPdfPath": "data/raw_pdfs\\fcc0eb6ff52827a121673280ea34f870d0c93b54.pdf",
-        "titleSource": "old"
+        "citationCount": 8129,
+        "localPdfPath": "data/raw_pdfs\\530a059cb48477ad1e3d4f8f4b153274c8997332.pdf",
+        "titleSource": "api"
     }
 ]
