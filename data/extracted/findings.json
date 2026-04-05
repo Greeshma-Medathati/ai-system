@@ -1,16 +1,16 @@
 {
-    "530a059cb48477ad1e3d4f8f4b153274c8997332.pdf": [
-        "The use of background knowledge in the form of logical statements or constraints in Knowledge Bases (KBs) has shown to not only improve explainability but also performance with respect to purely data-driven approaches .",
-        "The proposal then includes an algorithm that both generates explanations and reduces bias, as it is demonstrated for the use case of recidivism using the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) dataset .",
-        "The aforementioned examples from the EC shows how data fusion is directly intertwined with privacy and with fairness, regardless of the technique employed for it.",
-        "In order to analyse the visual information contained inside the CNN, the authors proposed a general framework that reconstruct an image from the CNN internal representations and showed that several layers retain photographically accurate information about the image, with different degrees of geometric and photometric invariance.",
-        "These metrics, as the classic ones (accuracy, F1, sensitivity...), should express how well the model performs in a certain aspect of explainability."
+    "487b787e6ca2368aff7941c86e39941db83c5087.pdf": [
+        "**1.1 Authority** The National Institute of Standards and Technology (NIST) developed this document in furtherance of its statutory responsibilities under the Federal Information Security Management Act (FISMA) of 2002, Public Law 107-347.",
+        "The cloud infrastructure is provisioned for exclusive use by a specific community of consumers from organizations that have shared concerns (e.g., mission, security requirements, policy, and compliance considerations).",
+        "This guideline is consistent with the requirements of the Office of Management and Budget (OMB) Circular A-130, Section 8b(3), “Securing Agency Information Systems,” as analyzed in A-130, Appendix IV: Analysis of Key Sections.",
+        "1.3 Audience** The intended audience of this document is system planners, program managers, technologists, and others adopting cloud computing as consumers or providers of cloud services.",
+        "The capability provided to the consumer is to deploy onto the cloud infrastructure consumer-created or acquired applications created using programming > 1 Typically this is done on a pay-per-use or charge-per-use basis."
     ],
-    "6a132499ca1dc0d23cfe7d5db841b819df63b51b.pdf": [
-        "The benefits and productivity improvement at the tactical, operational and strategic level are envisaged to be significant as the firms move towards digital transformation empowered with AI.",
-        "Artificial Intelligence for digital marketing – Emmanuel Mogaji The vast amount of data being generated, increased use of mobile device, cloud computing and internet has contributed to the significant development of Artificial Intelligence (AI).",
-        "India's National Strategy for AI prioritises – fairness, transparency, privacy and security as the key challenges of AI over the rest (Niti Aayog, 2018).",
-        "The in telligence provided by the systems enable better information sharing and cooperation resulting in improved user-experiences and persona lisation, higher levels of efficiency and a reduction of costs.",
-        "The potential for inherent bias within AI algorithms and implica tions of humans in loop working in close proximity to intelligent ma chines, poses significant challenges in the context of trust, human safety and ethical considerations."
+    "fcc0eb6ff52827a121673280ea34f870d0c93b54.pdf": [
+        "The rationality behind PPGs are that most applications that deal with point cloud processing can be formulated as a concrete set of building blocks that are parameterized to achieve different results.",
+        "Left: the 3D Cartesian space represents XYZ data, with the arrows representing surface normals estimated at each point in the cloud, right: the Cartesian space represents the 3 dimensions of the normal vector at each point for the same dataset. **",
+        "The second example constitutes a segmentation operation for planar surfaces, using a RANSAC model, as shown in Algorithm 3.",
+        "Its purpose is to be able to quickly prototype and visualize the results of algorithms operating on such hyper-dimensional data.",
+        "The results of these methods were then used to extract certain statistics about the shape and size of the door and the handle, in order to uniquely identify them and to reject false positives."
     ]
 }

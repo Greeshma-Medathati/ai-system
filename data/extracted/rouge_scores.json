@@ -1,0 +1,34 @@
+{
+    "timestamp": "2026-04-05T11:38:25",
+    "hypothesis": "data\\extracted\\final_review_draft.txt",
+    "reference_source": "data\\extracted\\sections.json",
+    "paper_details": [
+        {
+            "paper": "487b787e6ca2368aff7941c86e39941db83c5087.pdf",
+            "source_used": "introduction",
+            "word_count": 180
+        },
+        {
+            "paper": "fcc0eb6ff52827a121673280ea34f870d0c93b54.pdf",
+            "source_used": "unknown",
+            "word_count": 131
+        }
+    ],
+    "scores": {
+        "rouge-1": {
+            "p": 0.2803,
+            "r": 0.4024,
+            "f": 0.3304
+        },
+        "rouge-2": {
+            "p": 0.0468,
+            "r": 0.0673,
+            "f": 0.0552
+        },
+        "rouge-l": {
+            "p": 0.1189,
+            "r": 0.1707,
+            "f": 0.1402
+        }
+    }
+}

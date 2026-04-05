@@ -1,222 +1,52 @@
 [
     {
-        "paperId": "530a059cb48477ad1e3d4f8f4b153274c8997332",
-        "title": "Explainable Artificial Intelligence (XAI): Concepts, Taxonomies, Opportunities and Challenges toward Responsible AI",
+        "paperId": "487b787e6ca2368aff7941c86e39941db83c5087",
+        "title": "The NIST Definition of Cloud Computing",
         "authors": [
             {
-                "authorId": "1379511816",
-                "name": "Alejandro Barredo Arrieta"
+                "authorId": "152956203",
+                "name": "P. Mell"
             },
             {
-                "authorId": "2058921025",
-                "name": "Natalia Díaz Rodríguez"
-            },
-            {
-                "authorId": "9221552",
-                "name": "J. Ser"
-            },
-            {
-                "authorId": "1379511786",
-                "name": "Adrien Bennetot"
-            },
-            {
-                "authorId": "3030006",
-                "name": "S. Tabik"
-            },
-            {
-                "authorId": "50449165",
-                "name": "A. Barbado"
-            },
-            {
-                "authorId": "39558258",
-                "name": "S. García"
-            },
-            {
-                "authorId": "1402195255",
-                "name": "S. Gil-Lopez"
-            },
-            {
-                "authorId": "145337392",
-                "name": "D. Molina"
-            },
-            {
-                "authorId": "2445552",
-                "name": "Richard Benjamins"
-            },
-            {
-                "authorId": "2091924780",
-                "name": "Raja Chatila"
-            },
-            {
-                "authorId": "2098723448",
-                "name": "Francisco Herrera"
+                "authorId": "46190295",
+                "name": "T. Grance"
             }
         ],
-        "year": 2019,
-        "venue": "Information Fusion",
+        "year": 2011,
+        "venue": "",
         "openAccessPdf": {
-            "url": "https://bird.bcamath.org/bitstream/20.500.11824/1166/1/24.%20main.pdf",
-            "status": "GREEN",
-            "license": "CCBYNCSA"
+            "url": "https://doi.org/10.6028/nist.sp.800-145",
+            "status": "BRONZE",
+            "license": null,
+            "disclaimer": "Notice: The following paper fields have been elided by the publisher: {'abstract'}. Paper or abstract available at https://api.unpaywall.org/v2/10.6028/NIST.SP.800-145?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.6028/NIST.SP.800-145, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
         },
-        "citationCount": 8126,
-        "localPdfPath": "data/raw_pdfs\\530a059cb48477ad1e3d4f8f4b153274c8997332.pdf",
+        "citationCount": 14997,
+        "localPdfPath": "data/raw_pdfs\\487b787e6ca2368aff7941c86e39941db83c5087.pdf",
         "titleSource": "old"
     },
     {
-        "paperId": "6a132499ca1dc0d23cfe7d5db841b819df63b51b",
-        "title": "Artificial Intelligence (AI): Multidisciplinary perspectives on emerging challenges, opportunities, and agenda for research, practice and policy",
+        "paperId": "fcc0eb6ff52827a121673280ea34f870d0c93b54",
+        "title": "3D is here: Point Cloud Library (PCL)",
         "authors": [
             {
-                "authorId": "1724490",
-                "name": "Yogesh Kumar Dwivedi"
+                "authorId": "2689311",
+                "name": "R. Rusu"
             },
             {
-                "authorId": "2066599148",
-                "name": "Laurie Hughes"
-            },
-            {
-                "authorId": "3446873",
-                "name": "Elvira Ismagilova"
-            },
-            {
-                "authorId": "91018104",
-                "name": "G. Aarts"
-            },
-            {
-                "authorId": "2235927",
-                "name": "Crispin R. Coombs"
-            },
-            {
-                "authorId": "2285182",
-                "name": "Tom Crick"
-            },
-            {
-                "authorId": "144521858",
-                "name": "Y. Duan"
-            },
-            {
-                "authorId": "1410968693",
-                "name": "R. Dwivedi"
-            },
-            {
-                "authorId": "143698898",
-                "name": "J. Edwards"
-            },
-            {
-                "authorId": "121714298",
-                "name": "Aled Eirug"
-            },
-            {
-                "authorId": "26898704",
-                "name": "Vassilis Galanos"
-            },
-            {
-                "authorId": "2937059",
-                "name": "P. Ilavarasan"
-            },
-            {
-                "authorId": "50817520",
-                "name": "M. Janssen"
-            },
-            {
-                "authorId": "2168272578",
-                "name": "Paul Jones"
-            },
-            {
-                "authorId": "2733956",
-                "name": "A. Kar"
-            },
-            {
-                "authorId": "41074539",
-                "name": "Hatice Kizgin"
-            },
-            {
-                "authorId": "1418648774",
-                "name": "Bianca Kronemann"
-            },
-            {
-                "authorId": "1696747",
-                "name": "Banita Lal"
-            },
-            {
-                "authorId": "3094343",
-                "name": "B. Lucini"
-            },
-            {
-                "authorId": "2575165",
-                "name": "R. Medaglia"
-            },
-            {
-                "authorId": "1404797274",
-                "name": "K. L. Meunier-FitzHugh"
-            },
-            {
-                "authorId": "1415234363",
-                "name": "L. Meunier-FitzHugh"
-            },
-            {
-                "authorId": "47033159",
-                "name": "S. Misra"
-            },
-            {
-                "authorId": "52563419",
-                "name": "E. Mogaji"
-            },
-            {
-                "authorId": "2038468629",
-                "name": "S. Sharma"
-            },
-            {
-                "authorId": "153278840",
-                "name": "J. Singh"
-            },
-            {
-                "authorId": "35098701",
-                "name": "Vishnupriya Raghavan"
-            },
-            {
-                "authorId": "2775338",
-                "name": "R. Raman"
-            },
-            {
-                "authorId": "1688149",
-                "name": "Nripendra P. Rana"
-            },
-            {
-                "authorId": "2032434",
-                "name": "Spyridon Samothrakis"
-            },
-            {
-                "authorId": "66781543",
-                "name": "Jak Spencer"
-            },
-            {
-                "authorId": "2191954",
-                "name": "K. Tamilmani"
-            },
-            {
-                "authorId": "102927759",
-                "name": "Annie Tubadji"
-            },
-            {
-                "authorId": "144340154",
-                "name": "P. Walton"
-            },
-            {
-                "authorId": "2116399602",
-                "name": "Michael D. Williams"
+                "authorId": "2070002084",
+                "name": "S. Cousins"
             }
         ],
-        "year": 2019,
-        "venue": "International Journal of Information Management",
+        "year": 2011,
+        "venue": "",
         "openAccessPdf": {
-            "url": "http://pure.tudelft.nl/ws/portalfiles/portal/85676082/1_s2.0_S026840121930917X_main.pdf",
+            "url": "http://www.pointclouds.org/assets/pdf/pcl_icra2011.pdf",
             "status": "GREEN",
-            "license": "other-oa"
+            "license": null,
+            "disclaimer": "Notice: The following paper fields have been elided by the publisher: {'abstract'}. Paper or abstract available at https://api.unpaywall.org/v2/10.1109/ICRA.2011.5980567?email=<INSERT_YOUR_EMAIL> or https://doi.org/10.1109/ICRA.2011.5980567, which is subject to the license by the author or copyright owner provided with this content. Please go to the source to verify the license and copyright information for your use."
         },
-        "citationCount": 3181,
-        "localPdfPath": "data/raw_pdfs\\6a132499ca1dc0d23cfe7d5db841b819df63b51b.pdf",
+        "citationCount": 5271,
+        "localPdfPath": "data/raw_pdfs\\fcc0eb6ff52827a121673280ea34f870d0c93b54.pdf",
         "titleSource": "old"
     }
 ]
