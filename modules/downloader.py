@@ -3,7 +3,7 @@ import requests
 from tqdm import tqdm
 from config import PDF_DIR, PDF_CHECK_TIMEOUT
 
-
+print("RUNNING DOWNLOADER FILE:", __file__)
 def is_pdf_accessible(pdf_url: str) -> bool:
     headers = {"User-Agent": "Mozilla/5.0"}
 

@@ -1,23 +1,16 @@
 {
-    "3936fd3c6187f606c6e4e2e20b196dbc41cc4654.pdf": [
-        "We find that harmlessness and HH scores improve monotonically with respect to number of revisions, where revision 0 refers to the initial response, but pure helpfulness scores decrease.",
-        "The RL stage significantly improves performance and reliability.",
-        "## **3.4 Scaling Trends** Here we show results on the way preference model scores depend on the number of principles in the constitution and the number of revisions.",
-        "We experiment with methods for training a harmless AI assistant through selfimprovement, without any human labels identifying harmful outputs.",
-        "Both the SL and RL methods can leverage chain-of-thought style reasoning to improve the human-judged performance and transparency of AI decision making."
-    ],
     "530a059cb48477ad1e3d4f8f4b153274c8997332.pdf": [
-        "Departing from this definition, we propose and discuss about a taxonomy of recent contributions related to the explainability of different Machine Learning models, including those aimed at explaining Deep Learning methods for which a second dedicated taxonomy is built and examined in detail.",
-        "Our prospects lead toward the concept of _Responsible Artificial Intelligence_ , namely, a methodology for the large-scale implementation of AI methods in real organizations with fairness, model explainability and accountability at its core.",
-        "For this to occur shortly in Machine Learning, the entire community stands in front of the barrier of explainability, an inherent problem of the latest techniques brought by sub-symbolism (e.g.",
-        "ensembles or Deep Neural Networks) that were not present in the last hype of AI (namely, expert systems and rule based models).",
-        "Paradigms underlying this problem fall within the so-called _eXplainable_ AI (XAI) field, which is widely acknowledged as a crucial feature for the practical deployment of AI models."
+        "The use of background knowledge in the form of logical statements or constraints in Knowledge Bases (KBs) has shown to not only improve explainability but also performance with respect to purely data-driven approaches .",
+        "The proposal then includes an algorithm that both generates explanations and reduces bias, as it is demonstrated for the use case of recidivism using the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) dataset .",
+        "The aforementioned examples from the EC shows how data fusion is directly intertwined with privacy and with fairness, regardless of the technique employed for it.",
+        "In order to analyse the visual information contained inside the CNN, the authors proposed a general framework that reconstruct an image from the CNN internal representations and showed that several layers retain photographically accurate information about the image, with different degrees of geometric and photometric invariance.",
+        "These metrics, as the classic ones (accuracy, F1, sensitivity...), should express how well the model performs in a certain aspect of explainability."
     ],
     "6a132499ca1dc0d23cfe7d5db841b819df63b51b.pdf": [
-        "AI technology improves the quality of| |Life below water<br>Life on land|understanding and responding to climate impacts and could end up being a vitally important part of assuring and promoting<br>economic development amongst the world's least well of (Brookings Institute, 2019).",
-        "However, al­ though this vision of a society that benefits from the onset of AI is realistic, the short to medium term transition may negatively impact many vulnerable aspects of society.",
-        "Studies have highlighted that organisations face significant issues where the lack of an effective strategy for human vs AI interaction could affect critical business areas and fail to address concerns from the human workforce (Fry, 2018; Sun & Medaglia, 2019).",
-        "AI can help or­ ganisations to develop operational and strategic awareness but in­ formation quality is a critical component (Westerman et al., 2014) for effective change.",
-        "Researchers have sup­ ported the need for AI technologies to augment not replace the work of humans, to support key tasks and deliver greater levels of performance (Davenport & Kirby, 2016; Wang, Törngren, & Onori, 2015a; Wang, Li, & Leung, 2015b)."
+        "The benefits and productivity improvement at the tactical, operational and strategic level are envisaged to be significant as the firms move towards digital transformation empowered with AI.",
+        "Artificial Intelligence for digital marketing – Emmanuel Mogaji The vast amount of data being generated, increased use of mobile device, cloud computing and internet has contributed to the significant development of Artificial Intelligence (AI).",
+        "India's National Strategy for AI prioritises – fairness, transparency, privacy and security as the key challenges of AI over the rest (Niti Aayog, 2018).",
+        "The in telligence provided by the systems enable better information sharing and cooperation resulting in improved user-experiences and persona lisation, higher levels of efficiency and a reduction of costs.",
+        "The potential for inherent bias within AI algorithms and implica tions of humans in loop working in close proximity to intelligent ma chines, poses significant challenges in the context of trust, human safety and ethical considerations."
     ]
 }

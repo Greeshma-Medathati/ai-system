@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+import traceback
 from pathlib import Path
 
 import gradio as gr
@@ -39,18 +40,15 @@ def load_metadata_table():
     metadata_path = os.path.join(METADATA_DIR, "papers.json")
     if not os.path.exists(metadata_path):
         return []
-
     try:
         with open(metadata_path, "r", encoding="utf-8") as f:
             papers = json.load(f)
-
         rows = []
         for p in papers:
             rows.append([
                 p.get("paperId", ""),
                 p.get("title", ""),
-                p.get("year", ""),
-                p.get("localPdfPath", ""),
+                str(p.get("year", "")) or "N/A",
             ])
         return rows
     except Exception:
@@ -83,65 +81,191 @@ def format_search_choice(idx: int, paper: dict) -> str:
     return f"{idx + 1}. {title} ({year})"
 
 
-def format_findings_for_display(findings_data):
+def format_findings_as_sections(findings_data):
+    """Return a list of (title, content) tuples for accordion rendering."""
     if not findings_data:
-        return "No findings available."
+        return []
 
     metadata_path = os.path.join(METADATA_DIR, "papers.json")
     title_map = {}
-
     if os.path.exists(metadata_path):
         try:
             with open(metadata_path, "r", encoding="utf-8") as f:
                 papers = json.load(f)
             for p in papers:
                 pid = p.get("paperId", "")
-                title = p.get("title", pid)
-                title_map[pid] = title
+                title_map[pid] = p.get("title", pid)
         except Exception:
             pass
 
-    lines = []
-
+    sections = []
     for paper, findings in findings_data.items():
         paper_id = paper.replace(".pdf", "")
-        title = title_map.get(paper_id, paper_id)
 
-        lines.append(f"## 📄 {title}")
-        lines.append("")
+        # Try exact match first, then partial match (handles mismatched IDs)
+        title = title_map.get(paper_id)
+        if not title:
+            for pid, t in title_map.items():
+                if pid in paper_id or paper_id in pid:
+                    title = t
+                    break
+        if not title:
+            # Last resort: humanise the filename
+            title = paper_id.replace("_", " ").replace("-", " ").strip() or paper
 
         if findings:
-            for finding in findings:
-                clean = finding.replace("**", "").strip()
-                lines.append(f"• {clean}")
+            content = "\n".join(f"• {f.replace('**', '').strip()}" for f in findings)
         else:
-            lines.append("• No findings extracted")
-
-        lines.append("")
-
-    return "\n".join(lines)
+            content = "• No findings extracted"
+        sections.append((title, content))
+    return sections
 
 
-def format_comparison_for_display(comparison_text):
-    if not comparison_text:
-        return "No comparison available."
+def build_findings_html(sections):
+    """Build a clean accordion-style HTML block for findings per paper."""
+    if not sections:
+        return "<p style='color:gray;padding:10px'>No findings available.</p>"
 
-    return comparison_text.replace("**", "")
+    parts = ["""
+    <style>
+    .findings-wrap { font-family: inherit; margin-top: 4px; }
+    details.finding-item {
+        border: 1px solid var(--border-color-primary, #ddd);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+    details.finding-item summary {
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        background: var(--block-background-fill, #f9f9f9);
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    details.finding-item summary::-webkit-details-marker { display: none; }
+    details.finding-item summary::before {
+        content: "▶";
+        font-size: 0.65rem;
+        transition: transform 0.2s;
+        flex-shrink: 0;
+    }
+    details.finding-item[open] summary::before { transform: rotate(90deg); }
+    .finding-body {
+        padding: 10px 16px 14px 16px;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        border-top: 1px solid var(--border-color-primary, #ddd);
+    }
+    </style>
+    <div class="findings-wrap">
+    """]
+    for title, content in sections:
+        safe_title = title.replace("<", "&lt;").replace(">", "&gt;")
+        safe_content = content.replace("<", "&lt;").replace(">", "&gt;")
+        parts.append(f"""
+        <details class="finding-item">
+            <summary>📄 {safe_title}</summary>
+            <div class="finding-body">{safe_content}</div>
+        </details>
+        """)
+    parts.append("</div>")
+    return "".join(parts)
 
 
 def format_final_draft_for_display(draft_text):
     if not draft_text:
         return "No final draft available."
-    return draft_text.replace("**", "")
+    import re
+    text = draft_text.replace("**", "")
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    lines = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped and stripped.isupper() and len(stripped) > 3:
+            lines.append(f"## {stripped.title()}")
+        else:
+            lines.append(line)
+    return "\n".join(lines)
 
 
 def read_outputs():
     metadata_rows = load_metadata_table()
     findings = load_json_file(os.path.join(EXTRACTED_DIR, "findings.json"))
-    comparison = load_text_file(os.path.join(EXTRACTED_DIR, "comparison.txt"))
-    narrative = load_text_file(os.path.join(EXTRACTED_DIR, "literature_review.txt"))
     final_draft = load_text_file(os.path.join(EXTRACTED_DIR, "final_review_draft.txt"))
-    return metadata_rows, findings, comparison, narrative, final_draft
+    return metadata_rows, findings, final_draft
+
+
+def normalize_selected_labels(selected_labels):
+    if not selected_labels:
+        return []
+    if isinstance(selected_labels, str):
+        return [selected_labels]
+    if isinstance(selected_labels, (list, tuple)):
+        return list(selected_labels)
+    return [str(selected_labels)]
+
+
+def normalize_papers_state(papers_state):
+    if not papers_state:
+        return []
+    if isinstance(papers_state, list):
+        if all(isinstance(p, dict) for p in papers_state):
+            return papers_state
+        normalized = []
+        for item in papers_state:
+            if isinstance(item, dict):
+                normalized.append(item)
+            elif isinstance(item, str):
+                try:
+                    parsed = json.loads(item)
+                    if isinstance(parsed, dict):
+                        normalized.append(parsed)
+                except Exception:
+                    pass
+        return normalized
+    if isinstance(papers_state, str):
+        try:
+            parsed = json.loads(papers_state)
+            if isinstance(parsed, list):
+                return [p for p in parsed if isinstance(p, dict)]
+            if isinstance(parsed, dict):
+                return [parsed]
+        except Exception:
+            return []
+    if isinstance(papers_state, dict):
+        return [papers_state]
+    return []
+
+
+def find_paper_from_label(label, papers):
+    for i, p in enumerate(papers):
+        if format_search_choice(i, p) == label:
+            return p
+    for p in papers:
+        if p.get("title") == label:
+            return p
+    for p in papers:
+        if p.get("paperId") == label:
+            return p
+    return None
+
+
+def get_pdf_preview_markdown():
+    """Return a markdown string listing all PDFs currently in PDF_DIR."""
+    if not os.path.exists(PDF_DIR):
+        return ""
+    pdfs = sorted(f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf"))
+    if not pdfs:
+        return ""
+    lines = ["**📁 PDFs ready for analysis:**"]
+    for name in pdfs:
+        lines.append(f"• {name}")
+    return "\n".join(lines)
 
 
 # -----------------------------
@@ -149,20 +273,15 @@ def read_outputs():
 # -----------------------------
 def search_downloadable(topic: str, count: int):
     ensure_dirs()
-
     topic = (topic or "").strip()
     if not topic:
-        return (
-            "❌ Please enter a research topic.",
-            gr.update(choices=[], value=[]),
-            []
-        )
-
+        return "❌ Please enter a research topic.", gr.update(choices=[], value=[]), []
     try:
         papers = search_papers(topic, max(10, count * 6))
         downloadable = []
-
         for p in papers:
+            if not isinstance(p, dict):
+                continue
             pdf_info = p.get("openAccessPdf")
             if not pdf_info or not pdf_info.get("url"):
                 continue
@@ -183,54 +302,47 @@ def search_downloadable(topic: str, count: int):
         return msg, gr.update(choices=choices, value=choices[:min(len(choices), count)]), downloadable
 
     except Exception as e:
-        return (
-            f"❌ Search failed: {e}",
-            gr.update(choices=[], value=[]),
-            []
-        )
+        return f"❌ Search failed: {e}", gr.update(choices=[], value=[]), []
 
 
 def download_selected_papers(selected_labels, papers_state):
     ensure_dirs()
+    selected_labels = normalize_selected_labels(selected_labels)
+    papers = normalize_papers_state(papers_state)
 
-    if not papers_state:
-        return "❌ Search for papers first."
-
+    if not papers:
+        return "❌ Search for papers first.", "", gr.update(visible=False)
     if not selected_labels:
-        return "❌ Please select at least one paper."
+        return "❌ Please select at least one paper.", "", gr.update(visible=False)
 
     try:
         clear_previous_run()
-
         selected_papers = []
-        label_to_paper = {
-            format_search_choice(i, p): p for i, p in enumerate(papers_state)
-        }
-
         for label in selected_labels:
-            paper = label_to_paper.get(label)
-            if not paper:
+            paper = find_paper_from_label(label, papers)
+            if not isinstance(paper, dict):
                 continue
-
             pdf_path = download_pdf(paper)
+            if not pdf_path:
+                continue
             paper_copy = dict(paper)
             paper_copy["localPdfPath"] = pdf_path
             selected_papers.append(paper_copy)
 
-        selected_papers = [p for p in selected_papers if p.get("localPdfPath")]
-
         if not selected_papers:
-            return "❌ Download failed for all selected papers."
+            return "❌ Download failed for all selected papers.", "", gr.update(visible=False)
 
         meta_path = save_metadata(selected_papers)
-        return (
+        status = (
             f"✅ Downloaded {len(selected_papers)} paper(s).\n"
             f"📁 PDFs saved in: {PDF_DIR}\n"
             f"📝 Metadata saved in: {meta_path}"
         )
+        preview = get_pdf_preview_markdown()
+        return status, preview, gr.update(visible=bool(preview))
 
     except Exception as e:
-        return f"❌ Download failed: {e}"
+        return f"❌ Download failed: {e}", "", gr.update(visible=False)
 
 
 # -----------------------------
@@ -238,28 +350,24 @@ def download_selected_papers(selected_labels, papers_state):
 # -----------------------------
 def upload_manual_pdfs(uploaded_files):
     ensure_dirs()
-
     if not uploaded_files:
-        return "❌ Please upload one or more PDF files."
+        return "❌ Please upload one or more PDF files.", "", gr.update(visible=False)
 
     try:
         clear_previous_run()
-
         saved = []
         metadata = []
 
-        for file_path in uploaded_files:
+        for file_item in uploaded_files:
+            file_path = file_item.name if hasattr(file_item, "name") else str(file_item)
             src = Path(file_path)
             if src.suffix.lower() != ".pdf":
                 continue
-
             clean_name = src.name
             dest = Path(PDF_DIR) / clean_name
             shutil.copy(file_path, dest)
-
             paper_id = dest.stem
             title = dest.stem.replace("_", " ").replace("-", " ")
-
             metadata.append({
                 "paperId": paper_id,
                 "title": title,
@@ -269,27 +377,28 @@ def upload_manual_pdfs(uploaded_files):
             saved.append(clean_name)
 
         if not saved:
-            return "❌ No valid PDF files were uploaded."
+            return "❌ No valid PDF files were uploaded.", "", gr.update(visible=False)
 
-        os.makedirs(METADATA_DIR, exist_ok=True)
         metadata_path = os.path.join(METADATA_DIR, "papers.json")
         with open(metadata_path, "w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=4, ensure_ascii=False)
 
-        return (
+        status = (
             f"✅ Uploaded {len(saved)} PDF file(s).\n"
             f"📁 PDFs saved in: {PDF_DIR}\n"
             f"📝 Metadata saved in: {metadata_path}"
         )
+        preview = get_pdf_preview_markdown()
+        return status, preview, gr.update(visible=bool(preview))
 
     except Exception as e:
-        return f"❌ Upload failed: {e}"
+        return f"❌ Upload failed: {e}", "", gr.update(visible=False)
 
 
 # -----------------------------
 # Analysis flow
 # -----------------------------
-def run_analysis_ui():
+def run_full_analysis_ui(progress=gr.Progress(track_tqdm=True)):
     ensure_dirs()
 
     pdfs = [f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf")]
@@ -297,57 +406,225 @@ def run_analysis_ui():
         return (
             "❌ No PDFs available. Please download or upload papers first.",
             [],
-            "No findings available.",
-            "No comparison available.",
-            "",
-            ""
+            "<p style='color:gray;padding:10px'>No findings available.</p>",
+            "No final draft available.",
+            gr.update(visible=False, value=None),
+            gr.update(value="", visible=False),
         )
 
     try:
+        progress(0.1, desc="⚙️ Step 1/3 — Extracting findings from papers...")
         run_milestone2()
-        metadata_rows, findings, comparison, narrative, final_draft = read_outputs()
 
-        formatted_findings = format_findings_for_display(findings)
-        formatted_comparison = format_comparison_for_display(comparison)
+        progress(0.6, desc="✍️ Step 2/3 — Generating literature review draft...")
+        run_milestone3()
 
+        progress(0.9, desc="📄 Step 3/3 — Preparing outputs...")
+        metadata_rows, findings, final_draft = read_outputs()
+
+        sections = format_findings_as_sections(findings)
+        findings_html = build_findings_html(sections)
+        formatted_draft = format_final_draft_for_display(final_draft)
+
+        pdf_path = _save_draft_as_pdf(final_draft) if final_draft else None
+
+        progress(1.0, desc="✅ Done!")
         return (
-            "✅ Analysis completed successfully.",
+            "✅ Analysis and review generation completed successfully.",
             metadata_rows,
-            formatted_findings,
-            formatted_comparison,
-            narrative,
-            format_final_draft_for_display(final_draft)
+            findings_html,
+            formatted_draft,
+            gr.update(visible=pdf_path is not None, value=pdf_path),
+            gr.update(value="", visible=False),
         )
 
     except Exception as e:
+        error_detail = traceback.format_exc()
         return (
             f"❌ Analysis failed: {e}",
             [],
-            "No findings available.",
-            "No comparison available.",
-            "",
-            ""
+            "<p style='color:gray;padding:10px'>No findings available.</p>",
+            "No final draft available.",
+            gr.update(visible=False, value=None),
+            gr.update(value=error_detail, visible=True),
         )
 
 
-def run_milestone3_ui():
-    ensure_dirs()
-
-    pdfs = [f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf")]
-    if not pdfs:
-        return "❌ No PDFs available. Please download or upload papers first.", ""
-
+def _save_draft_as_pdf(draft_text: str):
     try:
-        run_milestone3()
-        final_draft = load_text_file(os.path.join(EXTRACTED_DIR, "final_review_draft.txt"))
+        import os
+        import re
+        from xml.sax.saxutils import escape
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
+        from reportlab.lib import colors
+        from reportlab.platypus import (
+            SimpleDocTemplate,
+            Paragraph,
+            Spacer,
+            PageBreak,
+            HRFlowable
+        )
 
-        if not final_draft:
-            return "❌ Milestone 3 finished, but no final draft was generated.", ""
+        if not draft_text or not draft_text.strip():
+            return None
 
-        return "✅ Milestone 3 completed successfully.", format_final_draft_for_display(final_draft)
+        out_path = os.path.join(EXTRACTED_DIR, "final_review_draft.pdf")
+
+        doc = SimpleDocTemplate(
+            out_path,
+            pagesize=A4,
+            leftMargin=50,
+            rightMargin=50,
+            topMargin=50,
+            bottomMargin=45
+        )
+
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            "MyTitle",
+            parent=styles["Title"],
+            alignment=TA_CENTER,
+            fontSize=18,
+            leading=22,
+            spaceAfter=16,
+            textColor=colors.HexColor("#222222")
+        )
+
+        subtitle_style = ParagraphStyle(
+            "MySubtitle",
+            parent=styles["Normal"],
+            alignment=TA_CENTER,
+            fontSize=10,
+            leading=12,
+            spaceAfter=18,
+            textColor=colors.HexColor("#666666")
+        )
+
+        heading_style = ParagraphStyle(
+            "MyHeading",
+            parent=styles["Heading2"],
+            alignment=TA_LEFT,
+            fontSize=13,
+            leading=16,
+            spaceBefore=14,
+            spaceAfter=8,
+            textColor=colors.HexColor("#1f1f1f")
+        )
+
+        body_style = ParagraphStyle(
+            "MyBody",
+            parent=styles["BodyText"],
+            alignment=TA_JUSTIFY,
+            fontSize=10.5,
+            leading=16,
+            spaceAfter=8,
+            splitLongWords=True,
+            textColor=colors.HexColor("#222222")
+        )
+
+        ref_style = ParagraphStyle(
+            "MyRef",
+            parent=styles["BodyText"],
+            alignment=TA_LEFT,
+            fontSize=10,
+            leading=15,
+            leftIndent=14,
+            firstLineIndent=-10,
+            spaceAfter=6,
+            splitLongWords=True,
+            textColor=colors.HexColor("#222222")
+        )
+
+        def add_page_number(canvas, doc):
+            canvas.saveState()
+            canvas.setFont("Helvetica", 9)
+            canvas.setFillColor(colors.grey)
+            canvas.drawRightString(A4[0] - 50, 25, f"Page {doc.page}")
+            canvas.restoreState()
+
+        story = []
+        story.append(Paragraph("Final Literature Review Draft", title_style))
+        story.append(Paragraph("AI Research Paper Review System", subtitle_style))
+        story.append(HRFlowable(width="100%", thickness=0.8, color=colors.HexColor("#BBBBBB")))
+        story.append(Spacer(1, 14))
+
+        text = draft_text.replace("**", "")
+        text = text.replace("\t", " ")
+        text = re.sub(r"\r\n?", "\n", text)
+        text = re.sub(r"\n{3,}", "\n\n", text).strip()
+
+        # known section names
+        section_names = [
+            "Abstract",
+            "Introduction",
+            "Methods Comparison",
+            "Results Synthesis",
+            "Conclusion",
+            "References"
+        ]
+
+        # convert inline headings into proper blocks
+        for sec in section_names:
+            text = re.sub(rf"(?<!\n)({re.escape(sec)})\s+", rf"\n\n\1\n", text)
+
+        blocks = [b.strip() for b in text.split("\n\n") if b.strip()]
+
+        in_references = False
+
+        for block in blocks:
+            raw_block = block.strip()
+
+            # heading detection
+            if raw_block.startswith("## "):
+                heading = escape(raw_block[3:].strip())
+                story.append(Paragraph(heading, heading_style))
+                if heading.lower() == "references":
+                    in_references = True
+                continue
+
+            if raw_block in section_names:
+                heading = escape(raw_block)
+                story.append(Paragraph(heading, heading_style))
+                if raw_block.lower() == "references":
+                    in_references = True
+                else:
+                    in_references = False
+                continue
+
+            safe_block = escape(raw_block)
+
+            if in_references:
+                # split references more neatly
+                ref_lines = [r.strip() for r in re.split(r'(?=https?://)|(?<=\.)\s+(?=[A-Z][a-z]+,)', safe_block) if r.strip()]
+                if len(ref_lines) == 1:
+                    story.append(Paragraph(ref_lines[0].replace("\n", "<br/>"), ref_style))
+                else:
+                    for ref in ref_lines:
+                        story.append(Paragraph(ref.replace("\n", "<br/>"), ref_style))
+                story.append(Spacer(1, 4))
+            else:
+                story.append(Paragraph(safe_block.replace("\n", "<br/>"), body_style))
+                story.append(Spacer(1, 4))
+
+        doc.build(story, onFirstPage=add_page_number, onLaterPages=add_page_number)
+        return out_path
 
     except Exception as e:
-        return f"❌ Milestone 3 failed: {e}", ""
+        print(f"PDF generation failed: {e}")
+        return None
+
+
+def regenerate_pdf_from_edit(edited_text):
+    """Re-generate the PDF from user-edited draft text."""
+    if not (edited_text or "").strip():
+        return gr.update(visible=False, value=None), "❌ Draft is empty — nothing to export."
+    pdf_path = _save_draft_as_pdf(edited_text)
+    if pdf_path:
+        return gr.update(visible=True, value=pdf_path), "✅ PDF updated from your edited draft."
+    return gr.update(visible=False, value=None), "❌ PDF generation failed — check console for details."
 
 
 # -----------------------------
@@ -370,107 +647,103 @@ def toggle_mode(mode):
 ensure_dirs()
 
 CSS = """
-.gradio-container {
-    max-width: 1200px !important;
-    margin: auto !important;
+.gradio-container { max-width: 1200px !important; margin: auto !important; }
+.hero { text-align: center; padding: 12px 0 6px 0; }
+.hero h1 { font-size: 2rem; margin-bottom: 0.2rem; }
+.hero p { opacity: 0.88; font-size: 1rem; }
+.pdf-preview {
+    background: var(--block-background-fill);
+    border: 1px solid var(--border-color-primary);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    margin-top: 4px;
 }
-.hero {
-    text-align: center;
-    padding: 12px 0 6px 0;
-}
-.hero h1 {
-    font-size: 2rem;
-    margin-bottom: 0.2rem;
-}
-.hero p {
-    opacity: 0.88;
-    font-size: 1rem;
+.error-box textarea {
+    font-family: monospace !important;
+    font-size: 0.8rem !important;
+    color: #c0392b !important;
 }
 """
 
-with gr.Blocks(
-    title="AI Research Paper Review System",
-    theme=gr.themes.Soft(),
-    css=CSS
-) as demo:
-    gr.HTML(
-        """
+with gr.Blocks(title="AI Research Paper Review System", theme=gr.themes.Soft(), css=CSS) as demo:
+    gr.HTML("""
         <div class="hero">
             <h1>📚 AI Research Paper Review System</h1>
-            <p>Search or upload papers, analyze them, and view findings, comparison, and narrative review.</p>
+            <p>Search or upload papers, run analysis, and generate a literature review draft.</p>
         </div>
-        """
-    )
+    """)
 
     papers_state = gr.State([])
 
     with gr.Row():
+        # ── Left panel ───────────────────────────────────────────────────
         with gr.Column(scale=1):
             mode = gr.Radio(
                 choices=["Automatic Search", "Manual Upload"],
                 value="Automatic Search",
                 label="Choose Input Mode"
             )
-
-            topic = gr.Textbox(
-                label="Research Topic",
-                placeholder="Enter your topic here..."
-            )
-
-            paper_count = gr.Slider(
-                minimum=1,
-                maximum=5,
-                value=3,
-                step=1,
-                label="Number of Papers"
-            )
-
+            topic = gr.Textbox(label="Research Topic", placeholder="Enter your topic here...")
+            paper_count = gr.Slider(minimum=1, maximum=5, value=3, step=1, label="Number of Papers")
             search_btn = gr.Button("🔎 Search Downloadable Papers", variant="primary")
             search_status = gr.Textbox(label="Search Status", interactive=False)
-
-            paper_selector = gr.CheckboxGroup(
-                label="Select Papers to Download",
-                choices=[]
-            )
-
+            paper_selector = gr.CheckboxGroup(label="Select Papers to Download", choices=[])
             download_btn = gr.Button("⬇️ Download Selected Papers")
             download_status = gr.Textbox(label="Download / Upload Status", interactive=False)
 
-            manual_upload = gr.File(
-                label="Upload PDF Files",
-                file_count="multiple",
-                file_types=[".pdf"],
-                visible=False
-            )
+            # 🆕 Paper preview list
+            pdf_preview = gr.Markdown(value="", elem_classes=["pdf-preview"], visible=False)
 
+            manual_upload = gr.File(
+                label="Upload PDF Files", file_count="multiple",
+                file_types=[".pdf"], visible=False
+            )
             upload_btn = gr.Button("📤 Save Uploaded PDFs", visible=False)
 
-            run_btn = gr.Button("⚙️ Run Analysis", variant="primary")
-            run_m3_btn = gr.Button("📝 Run Milestone 3", variant="secondary")
-
+            run_btn = gr.Button("⚙️ Run Full Analysis", variant="primary")
             overall_status = gr.Textbox(label="System Status", interactive=False)
 
+            # 🆕 Error log (hidden unless there's a failure)
+            error_log = gr.Textbox(
+                label="⚠️ Error Details",
+                interactive=False,
+                visible=False,
+                lines=7,
+                elem_classes=["error-box"]
+            )
+
+        # ── Right panel ──────────────────────────────────────────────────
         with gr.Column(scale=2):
             with gr.Tab("📄 Selected Papers"):
                 papers_table = gr.Dataframe(
-                    headers=["Paper ID", "Title", "Year", "Local PDF Path"],
-                    datatype=["str", "str", "str", "str"],
+                    headers=["Paper ID", "Title", "Year"],
+                    datatype=["str", "str", "str"],
+                    column_widths=["20%", "65%", "15%"],
                     value=[],
                     interactive=False,
                     wrap=True
                 )
 
             with gr.Tab("🔍 Findings"):
-                findings_markdown = gr.Markdown(value="No findings available.")
-
-            with gr.Tab("📊 Comparison"):
-                comparison_markdown = gr.Markdown(value="No comparison available.")
-
-            with gr.Tab("📝 Narrative Review"):
-                narrative_text = gr.Markdown(value="")
+                # 🆕 Accordion-per-paper via HTML
+                findings_html = gr.HTML(
+                    value="<p style='color:gray;padding:10px'>No findings available.</p>"
+                )
 
             with gr.Tab("📘 Final Draft"):
-                final_draft_markdown = gr.Markdown(value="No final draft available.")
+                # 🆕 Editable textbox instead of read-only Markdown
+                final_draft_box = gr.Textbox(
+                    value="No final draft available.",
+                    label="Review Draft  —  edit freely, then re-export as PDF",
+                    lines=26,
+                    interactive=True
+                )
+                with gr.Row():
+                    regenerate_btn = gr.Button("🔄 Re-export Edited Draft as PDF", variant="secondary")
+                    draft_download = gr.File(label="⬇️ Download Final Draft as PDF", visible=False)
+
+    # ── Event wiring ─────────────────────────────────────────────────────
 
     mode.change(
         fn=toggle_mode,
@@ -487,25 +760,25 @@ with gr.Blocks(
     download_btn.click(
         fn=download_selected_papers,
         inputs=[paper_selector, papers_state],
-        outputs=download_status
+        outputs=[download_status, pdf_preview, pdf_preview]
     )
 
     upload_btn.click(
         fn=upload_manual_pdfs,
         inputs=manual_upload,
-        outputs=download_status
+        outputs=[download_status, pdf_preview, pdf_preview]
     )
 
     run_btn.click(
-        fn=run_analysis_ui,
+        fn=run_full_analysis_ui,
         inputs=[],
-        outputs=[overall_status, papers_table, findings_markdown, comparison_markdown, narrative_text, final_draft_markdown]
+        outputs=[overall_status, papers_table, findings_html, final_draft_box, draft_download, error_log]
     )
 
-    run_m3_btn.click(
-        fn=run_milestone3_ui,
-        inputs=[],
-        outputs=[overall_status, final_draft_markdown]
+    regenerate_btn.click(
+        fn=regenerate_pdf_from_edit,
+        inputs=[final_draft_box],
+        outputs=[draft_download, overall_status]
     )
 
 demo.launch()
