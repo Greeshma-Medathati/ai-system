@@ -15,4 +15,5 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://greesh2:$HF_TOKEN@huggingface.co/spaces/greesh2/Reviewsys main
+        # Change this line in your YAML if your GitHub secret is named 'review'
+        run: git push --force https://greesh2:${{ secrets.review }}@huggingface.co/spaces/greesh2/Reviewsys main
